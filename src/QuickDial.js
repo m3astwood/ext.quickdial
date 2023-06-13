@@ -9,6 +9,7 @@ export class QuickDial extends LitElement {
   static get properties() {
     return {
       links: { type: Array, state: true },
+      editableLink: { type: Object, state: true },
       addItem: { type: Boolean, state: true },
     };
   }
@@ -17,8 +18,9 @@ export class QuickDial extends LitElement {
     super();
     this.loading = false;
     this.links = [];
+    this.editableLink = {};
     this.addItem = false;
-    // this.getLinks();
+
     const linksObservable = liveQuery(() => db.links.toArray());
     linksObservable.subscribe({
       next: (data) => this.links = data,
@@ -27,14 +29,24 @@ export class QuickDial extends LitElement {
   }
 
   async saveItem(evt) {
-    const { url, name } = evt.detail;
+    const { id, url, name } = evt.detail;
+    this.editableLink = { id: null, name: '', url: '' };
     try {
-      await db.links.add({
-        name: name ? name : url,
-        url,
-      });
+      if (id) {
+        await db.links.update(parseInt(id), {
+          url,
+          name,
+        });
+      } else {
+        await db.links.add({
+          name: name ? name : url,
+          url,
+        });
+      }
     } catch (err) {
       console.error(err);
+    } finally {
+      this.addItem = false;
     }
   }
 
@@ -50,23 +62,56 @@ export class QuickDial extends LitElement {
     }
   }
 
+  editLink(evt) {
+    const { link } = evt.detail;
+    console.log(link);
+    this.editableLink = link;
+    this.addItem = true;
+  }
+
+  async deleteLink(evt) {
+    const { id } = evt.detail;
+    try {
+      await db.links.delete(parseInt(id));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   render() {
     return html`
       <h2>Quick Dial</h2>
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
       ${
       this.links.map((link) =>
-        html`<quick-item url="${link.url}" name="${link.name}"></quick-item>`
+        html`
+        <quick-item 
+          id="${link.id}" 
+          url="${link.url}" 
+          name="${link.name}"
+          @edit="${this.editLink}"
+          @delete="${this.deleteLink}"
+        ></quick-item>`
       )
     }
       <a href="#" @click="${this.openAddItem}">add item</a>
-      <add-item @save="${this.saveItem}" open=${this.addItem}></add-item>
-    `;
+      <add-item 
+        @save="${this.saveItem}" 
+        @close="${this.closeAddItem}"
+        open = ${this.addItem}
+        .link = ${this.editableLink}
+      ></add - item >
+  `;
   }
 
   openAddItem(evt) {
     evt.preventDefault();
     this.addItem = true;
+  }
+
+  closeAddItem() {
+    this.addItem = false;
+    this.editableLink = { id: null, name: '', url: '' };
   }
 
   static get styles() {
