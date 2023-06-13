@@ -1,16 +1,31 @@
 import { css, html, LitElement } from 'lit';
+import db from '../api/db.js';
 
 export class AddItem extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
       link: { type: Object },
+      categories: { type: Array, state: true },
     };
   }
 
   constructor() {
     super();
     this.open = false;
+    this.categories = [];
+
+    this.loadCategories();
+  }
+
+  async loadCategories() {
+    try {
+      const categories = await db.categories.toArray();
+
+      this.categories = categories;
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   attributeChangedCallback(at, _ol, ne) {
@@ -55,6 +70,15 @@ export class AddItem extends LitElement {
 
           <label for="url">url</label>
           <input type="text" name="url" value="${this.link?.url}">
+
+          <select name="categories">
+            <option value=""></option>
+            ${
+      this.categories.map((cat) =>
+        html`<option value="${cat.id}">${cat.name}</option>`
+      )
+    }
+          </select>
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
