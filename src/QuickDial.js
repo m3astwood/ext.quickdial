@@ -25,6 +25,10 @@ export class QuickDial extends LitElement {
     this.editableLink = {};
     this.addItem = false;
     this.addCategory = false;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
 
     const categoriesObservable = liveQuery(() => db.categories.toArray());
     categoriesObservable.subscribe({
@@ -32,9 +36,7 @@ export class QuickDial extends LitElement {
       error: (err) => console.error(err),
     });
 
-    const linksObservable = liveQuery(() =>
-      db.links.where('cat_id').below(0).toArray()
-    );
+    const linksObservable = liveQuery(() => db.links.toArray());
     linksObservable.subscribe({
       next: (data) => this.links = data,
       error: (err) => console.error(err),
@@ -153,21 +155,18 @@ export class QuickDial extends LitElement {
       )
     }
 
-
-      ${this.categories.map((cat) => html`<h3>${cat.name}</h3>`)}
-        
-        <add-item 
-          @save="${this.saveItem}" 
-          @close="${this.closeAddItem}"
-          open=${this.addItem}
-          .link=${this.editableLink}
-        ></add-item >
-        
-        <add-category 
-          @save="${this.saveCategory}" 
-          @close="${this.closeAddCategory}"
-          open=${this.addCategory}
-        ></add-category >
+    <add-item 
+      @save="${this.saveItem}" 
+      @close="${this.closeAddItem}"
+      open=${this.addItem}
+      .link=${this.editableLink}
+    ></add-item >
+    
+    <add-category 
+      @save="${this.saveCategory}" 
+      @close="${this.closeAddCategory}"
+      open=${this.addCategory}
+    ></add-category >
   `;
   }
 
