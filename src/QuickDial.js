@@ -2,7 +2,6 @@ import { css, html, LitElement } from 'lit';
 import './components/QuickItem.js';
 import './components/AddItem.js';
 
-import { liveQuery } from 'dexie';
 import db from './api/db.js';
 
 export class QuickDial extends LitElement {
@@ -21,11 +20,7 @@ export class QuickDial extends LitElement {
     this.editableLink = {};
     this.addItem = false;
 
-    const linksObservable = liveQuery(() => db.links.toArray());
-    linksObservable.subscribe({
-      next: (data) => this.links = data,
-      error: (err) => console.error(err),
-    });
+    this.getLinks();
   }
 
   async saveItem(evt) {
@@ -33,16 +28,24 @@ export class QuickDial extends LitElement {
     this.editableLink = { id: null, name: '', url: '' };
     try {
       if (id) {
-        await db.links.update(parseInt(id), {
-          url,
-          name,
+        await db.update({
+          in: 'links',
+          set: {
+            url,
+            name,
+          },
+          where: { id: parseInt(id) },
         });
       } else {
-        await db.links.add({
-          name: name ? name : url,
-          url,
+        await db.insert({
+          into: 'links',
+          values: [ {
+            name: name ? name : url,
+            url,
+          } ],
         });
       }
+      this.getLinks();
     } catch (err) {
       console.error(err);
     } finally {
@@ -53,7 +56,8 @@ export class QuickDial extends LitElement {
   async getLinks() {
     try {
       this.loading = true;
-      const data = await db.links.toArray();
+      const data = await db.select({ from: 'links' });
+      console.log(data);
       this.links = data;
     } catch (err) {
       console.error(err);
@@ -64,7 +68,6 @@ export class QuickDial extends LitElement {
 
   editLink(evt) {
     const { link } = evt.detail;
-    console.log(link);
     this.editableLink = { ...link };
     this.addItem = true;
   }
@@ -72,7 +75,11 @@ export class QuickDial extends LitElement {
   async deleteLink(evt) {
     const { id } = evt.detail;
     try {
-      await db.links.delete(parseInt(id));
+      await db.remove({
+        from: 'links',
+        where: { id: parseInt(id) },
+      });
+      this.getLinks();
     } catch (err) {
       console.error(err);
     }

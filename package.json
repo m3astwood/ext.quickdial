@@ -12,7 +12,7 @@
     "lit": "^2.7.2"
   },
   "devDependencies": {
-    "dexie": "^3.2.4",
+    "jsstore": "^4.5.4",
     "vite": "^4.3.9",
     "vite-plugin-web-extension": "^3.0.9"
   }
