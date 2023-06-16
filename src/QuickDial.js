@@ -3,7 +3,6 @@ import './components/QuickItem.js';
 import './components/AddItem.js';
 import './components/AddCategory.js';
 
-import { liveQuery } from 'dexie';
 import db from './api/db.js';
 
 export class QuickDial extends LitElement {
@@ -29,18 +28,6 @@ export class QuickDial extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
-    const categoriesObservable = liveQuery(() => db.categories.toArray());
-    categoriesObservable.subscribe({
-      next: (data) => this.categories = data,
-      error: (err) => console.error(err),
-    });
-
-    const linksObservable = liveQuery(() => db.links.toArray());
-    linksObservable.subscribe({
-      next: (data) => this.links = data,
-      error: (err) => console.error(err),
-    });
   }
 
   async saveItem(evt) {
@@ -48,16 +35,25 @@ export class QuickDial extends LitElement {
     this.editableLink = { id: null, name: '', url: '', cat: -1 };
     try {
       if (id) {
-        await db.links.update(parseInt(id), {
-          url,
-          name,
-          cat_id,
+        await db.update({
+          in: 'links',
+          set: {
+            url,
+            name,
+            cat_id,
+          },
+          where: { id: parseInt(id) },
         });
       } else {
-        await db.links.add({
-          name: name ? name : url,
-          url,
-          cat_id: cat_id ? cat_id : -1,
+        await db.insert({
+          into: 'links',
+          values: [
+            {
+              name: name ? name : url,
+              url,
+              cat_id: cat_id ? cat_id : -1,
+            },
+          ],
         });
       }
     } catch (err) {
@@ -70,7 +66,9 @@ export class QuickDial extends LitElement {
   async getLinks() {
     try {
       this.loading = true;
-      const data = await db.links.toArray();
+      const data = await db.select({
+        from: 'links',
+      });
       this.links = data;
     } catch (err) {
       console.error(err);
@@ -82,14 +80,14 @@ export class QuickDial extends LitElement {
   editLink(evt) {
     const { link } = evt.detail;
     console.log(link);
-    this.editableLink = link;
+    this.editableLink = { ...link };
     this.addItem = true;
   }
 
   async deleteLink(evt) {
     const { id } = evt.detail;
     try {
-      await db.links.delete(parseInt(id));
+      await db.remove({ from: 'links', where: { id: parseInt(id) } });
     } catch (err) {
       console.error(err);
     }
@@ -99,12 +97,21 @@ export class QuickDial extends LitElement {
     const { id, name } = evt.detail;
     try {
       if (id) {
-        await db.categories.update(parseInt(id), {
-          name,
+        await db.update({
+          in: 'categories',
+          set: {
+            name,
+          },
+          where: { id: parseInt(id) }, {
         });
       } else {
-        await db.categories.add({
-          name: name,
+        await db.insert({
+          into: 'categories',
+          values: [
+            {
+              name: name,
+            }
+          ]
         });
       }
     } catch (err) {
@@ -140,11 +147,9 @@ export class QuickDial extends LitElement {
         <a href="#" @click="${this.openAddItem}">add item</a> |
         <a href="#" @click="${this.openAddCategory}">add category</a>
       </header>
-
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
-      ${
-      this.links.map((link) =>
-        html`
+      ${this.links.map((link) =>
+      html`
         <quick-item 
           id="${link.id}" 
           url="${link.url}" 
@@ -152,12 +157,12 @@ export class QuickDial extends LitElement {
           @edit="${this.editLink}"
           @delete="${this.deleteLink}"
         ></quick-item>`
-      )
-    }
+    )
+      }
 
     <add-item 
       @save="${this.saveItem}" 
-      @close="${this.closeAddItem}"
+                  @close="${this.closeAddItem}"
       open=${this.addItem}
       .link=${this.editableLink}
     ></add-item >
@@ -172,19 +177,23 @@ export class QuickDial extends LitElement {
 
   static get styles() {
     return css`
-header {
-  display: flex;
-  align-items: end;
-  margin-block-end: 1em;
-  gap: 0.25em;
-}
+      :host {
+        display: block;
+        padding: 1em;
+       }
 
-h2 {
-  margin-block-end: 0;
-  line-height: 1;
-  margin-inline-end: auto;
-}
-`;
+    header {
+      display: flex;
+      align-items: end;
+      margin-block-end: 1em;
+      gap: 0.25em;
+    }
+
+    h2 {
+      margin-block-end: 0;
+      line-height: 1;
+      margin-inline-end: auto;
+    }`;
   }
 }
 
