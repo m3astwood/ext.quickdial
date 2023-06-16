@@ -11,6 +11,7 @@ export class AddItem extends LitElement {
   constructor() {
     super();
     this.open = false;
+    this.link = {};
   }
 
   attributeChangedCallback(at, _ol, ne) {
@@ -24,7 +25,7 @@ export class AddItem extends LitElement {
     const form = new FormData(evt.target);
     const detail = { name: form.get('name'), url: form.get('url') };
 
-    if (this.link.id) {
+    if (this.link?.id) {
       detail.id = this.link.id;
     }
 
@@ -35,9 +36,16 @@ export class AddItem extends LitElement {
         detail,
       });
 
+      this.clearForm();
+
       this.dispatchEvent(event);
       this.renderRoot.querySelector('dialog').close();
     }
+  }
+
+  clearForm() {
+    let inputs = this.shadowRoot.querySelectorAll('input');
+    inputs.forEach((i) => i.value = '');
   }
 
   close() {

@@ -25,7 +25,6 @@ export class QuickDial extends LitElement {
 
   async saveItem(evt) {
     const { id, url, name } = evt.detail;
-    this.editableLink = { id: null, name: '', url: '' };
     try {
       if (id) {
         await db.update({
@@ -85,6 +84,15 @@ export class QuickDial extends LitElement {
     }
   }
 
+  openAddItem(evt) {
+    evt.preventDefault();
+    this.addItem = true;
+  }
+
+  closeAddItem() {
+    this.addItem = false;
+  }
+
   render() {
     return html`
       <h1>Quick Dial</h1>
@@ -105,20 +113,9 @@ export class QuickDial extends LitElement {
       <add-item 
         @save="${this.saveItem}" 
         @close="${this.closeAddItem}"
-        open = ${this.addItem}
-        .link = ${this.editableLink}
-      ></add - item >
+        open=${this.addItem}
+      ></add-item >
   `;
-  }
-
-  openAddItem(evt) {
-    evt.preventDefault();
-    this.addItem = true;
-  }
-
-  closeAddItem() {
-    this.addItem = false;
-    this.editableLink = { id: null, name: '', url: '' };
   }
 
   static get styles() {
