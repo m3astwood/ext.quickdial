@@ -57,6 +57,7 @@ export class QuickDial extends LitElement {
           } ],
         });
       }
+      this.editableLink = { id: null, name: '', url: '' };
       this.getLinks();
     } catch (err) {
       console.error(err);
@@ -65,7 +66,8 @@ export class QuickDial extends LitElement {
 
   editLink(evt) {
     const { link } = evt.detail;
-    this.editableLink = link;
+    console.log(link);
+    this.editableLink = { ...link };
     this.addItem = true;
   }
 
@@ -88,6 +90,7 @@ export class QuickDial extends LitElement {
   }
 
   closeAddItem() {
+    this.editableLink = { id: null, name: '', url: '' };
     this.addItem = false;
   }
 

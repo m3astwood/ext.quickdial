@@ -14,11 +14,6 @@
     "default_title": "test ext",
     "default_popup": "menu.html"
   },
-  "background": {
-    "scripts": ["src/api/background.js"],
-    "persistent": false,
-    "type": "module"
-  },
   "chrome_url_overrides": {
     "newtab": "index.html"
   }
