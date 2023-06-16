@@ -80,7 +80,7 @@ export class QuickDial extends LitElement {
 
   render() {
     return html`
-      <h2>Quick Dial</h2>
+      <h1>Quick Dial</h1>
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
       ${
       this.links.map((link) =>
@@ -115,7 +115,16 @@ export class QuickDial extends LitElement {
   }
 
   static get styles() {
-    return css``;
+    return css`
+      :host {
+        display: block;
+        padding: 1em;
+      }
+
+      h1 {
+        margin: 0;
+      }
+    `;
   }
 }
 
