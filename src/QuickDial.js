@@ -65,7 +65,7 @@ export class QuickDial extends LitElement {
   editLink(evt) {
     const { link } = evt.detail;
     console.log(link);
-    this.editableLink = link;
+    this.editableLink = { ...link };
     this.addItem = true;
   }
 
