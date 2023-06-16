@@ -17,10 +17,23 @@ export class QuickDial extends LitElement {
     super();
     this.loading = false;
     this.links = [];
-    this.editableLink = {};
+    this.editableLink = { id: null, name: '', url: '' };
     this.addItem = false;
 
     this.getLinks();
+  }
+
+  async getLinks() {
+    try {
+      this.loading = true;
+      const data = await db.select({ from: 'links' });
+      console.log(data);
+      this.links = data;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.loading = false;
+    }
   }
 
   async saveItem(evt) {
@@ -47,27 +60,12 @@ export class QuickDial extends LitElement {
       this.getLinks();
     } catch (err) {
       console.error(err);
-    } finally {
-      this.addItem = false;
-    }
-  }
-
-  async getLinks() {
-    try {
-      this.loading = true;
-      const data = await db.select({ from: 'links' });
-      console.log(data);
-      this.links = data;
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.loading = false;
     }
   }
 
   editLink(evt) {
     const { link } = evt.detail;
-    this.editableLink = { ...link };
+    this.editableLink = link;
     this.addItem = true;
   }
 
@@ -114,6 +112,7 @@ export class QuickDial extends LitElement {
         @save="${this.saveItem}" 
         @close="${this.closeAddItem}"
         open=${this.addItem}
+        .link=${this.editableLink}
       ></add-item >
   `;
   }

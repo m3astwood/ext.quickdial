@@ -17,6 +17,8 @@ export class AddItem extends LitElement {
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
       this.renderRoot.querySelector('dialog').showModal();
+    } else {
+      console.log(at, ne);
     }
   }
 
@@ -36,16 +38,11 @@ export class AddItem extends LitElement {
         detail,
       });
 
-      this.clearForm();
+      this.link = { id: null, name: '', url: '' };
 
       this.dispatchEvent(event);
-      this.renderRoot.querySelector('dialog').close();
+      this.close();
     }
-  }
-
-  clearForm() {
-    let inputs = this.shadowRoot.querySelectorAll('input');
-    inputs.forEach((i) => i.value = '');
   }
 
   close() {

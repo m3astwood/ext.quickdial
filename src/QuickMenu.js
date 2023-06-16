@@ -21,10 +21,14 @@ class QuickMenu extends LitElement {
       if (!ct) throw new Error('No current tab data found');
 
       console.log(ct);
-
-      await db.links.add({
-        name: ct.title,
-        url: ct.url,
+      await db.insert({
+        into: 'links',
+        values: [
+          {
+            name: ct.title,
+            url: ct.url,
+          },
+        ],
       });
     } catch (err) {
       console.error(err);
