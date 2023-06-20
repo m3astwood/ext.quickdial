@@ -21,7 +21,7 @@ export class QuickDial extends LitElement {
     this.loading = false;
     this.links = [];
     this.categories = [];
-    this.editableLink = {};
+    this.editableLink = { id: null, name: '', url: '' };
     this.addItem = false;
     this.addCategory = false;
   }
@@ -60,6 +60,7 @@ export class QuickDial extends LitElement {
       console.error(err);
     } finally {
       this.addItem = false;
+      this.getLinks();
     }
   }
 
@@ -77,6 +78,34 @@ export class QuickDial extends LitElement {
     }
   }
 
+  async saveItem(evt) {
+    const { id, url, name } = evt.detail;
+    try {
+      if (id) {
+        await db.update({
+          in: 'links',
+          set: {
+            url,
+            name,
+          },
+          where: { id: parseInt(id) },
+        });
+      } else {
+        await db.insert({
+          into: 'links',
+          values: [ {
+            name: name ? name : url,
+            url,
+          } ],
+        });
+      }
+      this.editableLink = { id: null, name: '', url: '' };
+      this.getLinks();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   editLink(evt) {
     const { link } = evt.detail;
     console.log(link);
@@ -87,7 +116,11 @@ export class QuickDial extends LitElement {
   async deleteLink(evt) {
     const { id } = evt.detail;
     try {
-      await db.remove({ from: 'links', where: { id: parseInt(id) } });
+      await db.remove({
+        from: 'links',
+        where: { id: parseInt(id) },
+      });
+      this.getLinks();
     } catch (err) {
       console.error(err);
     }
@@ -102,7 +135,7 @@ export class QuickDial extends LitElement {
           set: {
             name,
           },
-          where: { id: parseInt(id) }, {
+          where: { id: parseInt(id) },
         });
       } else {
         await db.insert({
@@ -110,8 +143,8 @@ export class QuickDial extends LitElement {
           values: [
             {
               name: name,
-            }
-          ]
+            },
+          ],
         });
       }
     } catch (err) {
@@ -148,8 +181,9 @@ export class QuickDial extends LitElement {
         <a href="#" @click="${this.openAddCategory}">add category</a>
       </header>
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
-      ${this.links.map((link) =>
-      html`
+      ${
+      this.links.map((link) =>
+        html`
         <quick-item 
           id="${link.id}" 
           url="${link.url}" 
@@ -157,8 +191,8 @@ export class QuickDial extends LitElement {
           @edit="${this.editLink}"
           @delete="${this.deleteLink}"
         ></quick-item>`
-    )
-      }
+      )
+    }
 
     <add-item 
       @save="${this.saveItem}" 
