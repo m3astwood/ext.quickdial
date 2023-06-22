@@ -29,8 +29,8 @@ export class AddCategory extends LitElement {
     const form = new FormData(evt.target);
     const detail = { name: form.get('name') };
 
-    if (this.link?.id) {
-      detail.id = this.link.id;
+    if (this.category?.id) {
+      detail.id = this.category.id;
     }
 
     this.error = validate({ name: detail.name }, {
@@ -44,7 +44,7 @@ export class AddCategory extends LitElement {
         detail,
       });
 
-      this.link = { id: null, name: '' };
+      this.category = { id: null, name: '' };
 
       this.dispatchEvent(event);
       this.close();
@@ -69,7 +69,7 @@ export class AddCategory extends LitElement {
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
           <label for="name">name</label>
-          <input type="text" name="name" value="${this.link?.name}">
+          <input type="text" name="name" value="${this.category?.name}">
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>

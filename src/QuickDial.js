@@ -11,6 +11,7 @@ export class QuickDial extends LitElement {
       links: { type: Array, state: true },
       categories: { type: Array, state: true },
       editableLink: { type: Object, state: true },
+      editableCategory: { type: Object, state: true },
       addItem: { type: Boolean, state: true },
       addCategory: { type: Boolean, state: true },
     };
@@ -22,6 +23,7 @@ export class QuickDial extends LitElement {
     this.links = [];
     this.categories = [];
     this.editableLink = { id: null, name: '', url: '' };
+    this.editableCategory = { id: null, name: '' };
     this.addItem = false;
     this.addCategory = false;
   }
@@ -138,6 +140,38 @@ export class QuickDial extends LitElement {
       console.error(err);
     } finally {
       this.closeAddCategory();
+      this.getLinks();
+    }
+  }
+
+  editCategory(evt) {
+    const category = { ...evt.target.dataset };
+    console.log(category);
+    this.editableCategory = { ...category };
+    this.openAddCategory(evt);
+  }
+
+  async deleteCategory(evt) {
+    const { id } = evt.target.dataset;
+    try {
+      await db.remove({
+        from: 'categories',
+        where: { id: parseInt(id) },
+      });
+
+      await db.update({
+        in: 'links',
+        set: {
+          cat_id: 0,
+        },
+        where: {
+          cat_id: parseInt(id),
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.getLinks();
     }
   }
 
@@ -180,16 +214,27 @@ export class QuickDial extends LitElement {
   render() {
     return html`
       <header>
-        <h2>Quick Dial</h2>
         <a href="#" @click="${this.openAddItem}">add item</a> |
         <a href="#" @click="${this.openAddCategory}">add category</a>
       </header>
+      <main>
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
       ${
       this.links.map((category) =>
         html`
-      <h3>${category.name}</h3>
-      ${
+      <section class="category">
+        <header>
+          <h3>${category.name}</h3>
+          <button @click=${this.editCategory} data-id=${category.id} data-name=${category.name}>edit</button>
+          ${
+          category.id != 0
+            ? html`
+          <button @click=${this.deleteCategory} data-id=${category.id}>delete</button>
+          `
+            : ''
+        }
+        </header>
+        ${
           this.renderLinks(
             category['list(link_id)'],
             category['list(link_name)'],
@@ -197,31 +242,34 @@ export class QuickDial extends LitElement {
             category.id,
           )
         }
+        </section>
       `
       )
     }
+    </main>
 
     <add-item 
       @save="${this.saveItem}" 
-                  @close="${this.closeAddItem}"
+      @close="${this.closeAddItem}"
       open=${this.addItem}
       .link=${this.editableLink}
     ></add-item >
     
     <add-category 
-      @save="${this.saveCategory}" 
-      @close="${this.closeAddCategory}"
+      @save=${this.saveCategory}
+      @close=${this.closeAddCategory}
       open=${this.addCategory}
+      .category=${this.editableCategory}
     ></add-category >
   `;
   }
 
   static get styles() {
     return css`
-      :host {
-        display: block;
-        padding: 1em;
-       }
+    :host {
+      display: block;
+      padding: 1em;
+     }
 
     header {
       display: flex;
@@ -230,11 +278,27 @@ export class QuickDial extends LitElement {
       gap: 0.25em;
     }
 
-    h2 {
+    header > a:first-of-type {
+      margin-inline-start: auto;
+    }
+
+    h2, h3 {
       margin-block-end: 0;
       line-height: 1;
       margin-inline-end: auto;
-    }`;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(30em, 100%), 1fr));
+      gap: 1em;
+    }
+
+    main header {
+      border-block-end: thin solid currentColor;
+      padding-block-end: 1em;
+    }
+    `;
   }
 }
 
