@@ -131,8 +131,9 @@ export class AddItem extends LitElement {
         background-color: darkred;
         padding: 1em;
         margin: 1em;
+        color: white;
       }
-`;
+    `;
   }
 }
 

@@ -1,17 +1,19 @@
 import { css, html, LitElement } from 'lit';
-import db from '../api/db.js';
+import { validate } from 'validate.js';
 
 export class AddCategory extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
       category: { type: Object },
+      error: { type: Object, state: true },
     };
   }
 
   constructor() {
     super();
     this.open = false;
+    this.error = null;
   }
 
   attributeChangedCallback(at, _ol, ne) {
@@ -31,7 +33,11 @@ export class AddCategory extends LitElement {
       detail.id = this.link.id;
     }
 
-    if (detail.name) {
+    this.error = validate({ name: detail.name }, {
+      name: { presence: { allowEmpty: false } },
+    });
+
+    if (!this.error) {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
@@ -53,6 +59,13 @@ export class AddCategory extends LitElement {
 
   render() {
     return html`
+      ${
+      this.error
+        ? html`<div class="error">
+        Error : ${this.error.name.map((e) => html`${e} `)}
+      </div>`
+        : ''
+    }
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
           <label for="name">name</label>
@@ -66,7 +79,19 @@ export class AddCategory extends LitElement {
   }
 
   static get styles() {
-    return css``;
+    return css`
+      .error {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: calc(100vw - 4em);
+        background-color: darkred;
+        padding: 1em;
+        margin: 1em;
+        color: white;
+      }
+    `;
   }
 }
 
