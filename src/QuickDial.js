@@ -1,4 +1,6 @@
 import { css, html, LitElement } from 'lit';
+import Sortable from 'sortablejs';
+
 import './components/QuickItem.js';
 import './components/AddItem.js';
 import './components/AddCategory.js';
@@ -32,6 +34,15 @@ export class QuickDial extends LitElement {
     super.connectedCallback();
 
     this.getLinks();
+  }
+
+  firstUpdated() {
+    const categories = this.shadowRoot.querySelector('main');
+    Sortable.create(categories, {
+      handle: 'header',
+      easing: 'ease',
+      animation: 250,
+    });
   }
 
   async saveItem(evt) {
@@ -217,12 +228,14 @@ export class QuickDial extends LitElement {
         <a href="#" @click="${this.openAddItem}">add item</a> |
         <a href="#" @click="${this.openAddCategory}">add category</a>
       </header>
-      <main>
+
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
+
+      <main>
       ${
       this.links.map((category) =>
         html`
-      <section class="category">
+      <section class="category" draggable="true">
         <header>
           <h3>${category.name}</h3>
           <button @click=${this.editCategory} data-id=${category.id} data-name=${category.name}>edit</button>
