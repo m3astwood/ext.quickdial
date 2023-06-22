@@ -1,69 +1,44 @@
 import { css, html, LitElement } from 'lit';
 import db from '../api/db.js';
 
-export class AddItem extends LitElement {
+export class AddCategory extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      link: { type: Object },
-      dialog: { type: Object },
-      categories: { type: Array, state: true },
+      category: { type: Object },
     };
   }
 
   constructor() {
     super();
     this.open = false;
-    this.categories = [];
-
-    this.loadCategories();
-  }
-
-  async loadCategories() {
-    try {
-      const categories = await db.select({
-        from: 'categories',
-      });
-
-      this.categories = categories;
-    } catch (err) {
-      console.error(err);
-    }
   }
 
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
-      this.loadCategories();
       this.renderRoot.querySelector('dialog').showModal();
     } else {
       console.log(at, ne);
     }
   }
 
-  saveItem(evt) {
+  saveCategory(evt) {
     evt.preventDefault();
     const form = new FormData(evt.target);
-    const detail = {
-      name: form.get('name'),
-      url: form.get('url'),
-    };
-
-    if (form.get('cat_id')) {
-      detail.cat_id = parseInt(form.get('cat_id'));
-    }
+    const detail = { name: form.get('name') };
 
     if (this.link?.id) {
       detail.id = this.link.id;
     }
 
-    if (detail.url) {
+    if (detail.name) {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
         detail,
       });
 
-      this.link = { id: null, name: '', url: '' };
+      this.link = { id: null, name: '' };
 
       this.dispatchEvent(event);
       this.close();
@@ -79,23 +54,9 @@ export class AddItem extends LitElement {
   render() {
     return html`
       <dialog>
-        <form action="submit" @submit="${this.saveItem}">
+        <form action="submit" @submit="${this.saveCategory}">
           <label for="name">name</label>
           <input type="text" name="name" value="${this.link?.name}">
-
-          <label for="url">url</label>
-          <input type="text" name="url" value="${this.link?.url}">
-
-          <select name="cat_id">
-            <option value=""></option>
-            ${
-      this.categories.map((cat) =>
-        html`<option value="${cat.id}" ?selected=${
-          cat.id == this.link?.cat_id
-        }>${cat.name}</option>`
-      )
-    }
-          </select>
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
@@ -109,4 +70,4 @@ export class AddItem extends LitElement {
   }
 }
 
-window.customElements.define('add-item', AddItem);
+window.customElements.define('add-category', AddCategory);

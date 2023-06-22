@@ -6,13 +6,16 @@ export class QuickItem extends LitElement {
       id: { type: String },
       url: { type: String },
       name: { type: String },
+      cat_id: { type: String },
     };
   }
 
   constructor() {
     super();
+    this.id = null;
     this.name = null;
     this.url = null;
+    this.cat_id = null;
   }
 
   delete() {
@@ -36,6 +39,7 @@ export class QuickItem extends LitElement {
           id: this.id,
           url: this.url,
           name: this.name,
+          cat_id: this.cat_id,
         },
       },
     });
