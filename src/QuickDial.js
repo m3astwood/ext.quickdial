@@ -151,6 +151,30 @@ export class QuickDial extends LitElement {
     this.openAddCategory(evt);
   }
 
+  async deleteCategory(evt) {
+    const { id } = evt.target.dataset;
+    try {
+      await db.remove({
+        from: 'categories',
+        where: { id: parseInt(id) },
+      });
+
+      await db.update({
+        in: 'links',
+        set: {
+          cat_id: 0,
+        },
+        where: {
+          cat_id: parseInt(id),
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.getLinks();
+    }
+  }
+
   openAddItem(evt) {
     evt.preventDefault();
     this.addItem = true;
@@ -202,7 +226,13 @@ export class QuickDial extends LitElement {
         <header>
           <h3>${category.name}</h3>
           <button @click=${this.editCategory} data-id=${category.id} data-name=${category.name}>edit</button>
-          <button @click=${this.deleteCategory}>delete</button>
+          ${
+          category.id != 0
+            ? html`
+          <button @click=${this.deleteCategory} data-id=${category.id}>delete</button>
+          `
+            : ''
+        }
         </header>
         ${
           this.renderLinks(
