@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "lit": "^2.7.2",
+    "jsstore": "^4.5.4",
     "validate.js": "^0.13.1"
   },
   "devDependencies": {
-    "jsstore": "^4.5.4",
     "vite": "^4.3.9",
     "vite-plugin-web-extension": "^3.0.9"
   }
