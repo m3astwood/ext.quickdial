@@ -39,16 +39,44 @@ export class QuickDial extends LitElement {
   firstUpdated() {
     const categories = this.shadowRoot.querySelector('main');
     Sortable.create(categories, {
+      group: 'quickdial-categories',
       handle: 'header',
       easing: 'ease',
       animation: 250,
+      store: {
+        set: (sortable) => {
+          const order = sortable.toArray();
+          localStorage.setItem(sortable.options.group.name, order.join('|'));
+        },
+      },
+      onChange: (evt) => {
+        // evt has parent element with all children
+        // apply ids of categories as data-id to use later
+        console.log(evt);
+      },
     });
+  }
+
+  async getFavicon(url) {
+    try {
+      const req = await fetch(`${url}`, {
+        mode: 'cors',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+      console.log(await req.text());
+      return req;
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async saveItem(evt) {
     const { id, url, name, cat_id } = evt.detail;
     this.editableLink = { id: null, name: '', url: '', cat: -1 };
     try {
+      const favicon = await this.getFavicon(url);
       if (id) {
         await db.update({
           in: 'links',
@@ -281,7 +309,9 @@ export class QuickDial extends LitElement {
     return css`
     :host {
       display: block;
+      margin-block-start: 5em;
       padding: 1em;
+      width: min(100em, 100%);
      }
 
     header {
