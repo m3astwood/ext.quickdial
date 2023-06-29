@@ -3,43 +3,37 @@ import { css, html, LitElement } from 'lit';
 export class QuickItem extends LitElement {
   static get properties() {
     return {
-      id: { type: String },
-      url: { type: String },
-      name: { type: String },
-      cat_id: { type: String },
+      link: { type: Object },
     };
   }
 
   constructor() {
     super();
-    this.id = null;
-    this.name = null;
-    this.url = null;
-    this.cat_id = null;
+    this.link = {};
   }
 
-  delete() {
-    const event = new CustomEvent('delete', {
+  _delete() {
+    const event = new CustomEvent('deleteLink', {
       bubbles: true,
       composed: true,
       detail: {
-        id: this.id,
+        id: this.link.id,
       },
     });
 
     this.dispatchEvent(event);
   }
 
-  edit() {
-    const event = new CustomEvent('edit', {
+  _edit() {
+    const event = new CustomEvent('editLink', {
       bubbles: true,
       composed: true,
       detail: {
         link: {
-          id: this.id,
-          url: this.url,
-          name: this.name,
-          cat_id: this.cat_id,
+          id: this.link.id,
+          url: this.link.url,
+          name: this.link.name,
+          cat_id: this.link.cat_id,
         },
       },
     });
@@ -49,14 +43,14 @@ export class QuickItem extends LitElement {
 
   render() {
     return html`
-      <div class="item" id="link-${this.id}">
-        <a href="${this.url}">
-          ${this.name ? this.name : this.url}
+      <div class="item" id="link-${this.link.id}">
+        <a href="${this.link.url}">
+          ${this.link.name ? this.link.name : this.link.url}
         </a>
 
         <div class="controls">
-          <button class="outline" @click="${this.edit}">edit</button>
-          <button class="outline" @click="${this.delete}">delete</button>
+          <button class="outline" @click="${this._edit}">edit</button>
+          <button class="outline" @click="${this._delete}">delete</button>
         </div>
       </div>
     `;

@@ -5,7 +5,7 @@ export class AddCategory extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      category: { type: Object },
+      category: { type: Object, reflect: true },
       error: { type: Object, state: true },
     };
   }
@@ -14,6 +14,7 @@ export class AddCategory extends LitElement {
     super();
     this.open = false;
     this.error = null;
+    this.category = {};
   }
 
   attributeChangedCallback(at, _ol, ne) {
@@ -29,7 +30,7 @@ export class AddCategory extends LitElement {
     const form = new FormData(evt.target);
     const detail = { name: form.get('name') };
 
-    if (this.category?.id) {
+    if (Number.isInteger(this.category?.id)) {
       detail.id = this.category.id;
     }
 
