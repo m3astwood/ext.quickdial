@@ -43,80 +43,16 @@ export class QuickDial extends LitElement {
       easing: 'ease',
       animation: 250,
       onEnd: (evt) => {
-        console.log(evt.oldIndex, evt.newIndex);
+        console.log('onEnd :', evt.oldIndex, evt.newIndex);
         this.setOrder(evt.oldIndex, evt.newIndex);
       },
     });
-  }
-
-  async setOrder(oldIdx, newIdx) {
-    try {
-      const [ movedItem ] = await db.select({
-        from: 'categories',
-        where: {
-          order: oldIdx,
-        },
-      });
-
-      console.log(movedItem);
-
-      let reorder = { '+': 1 };
-
-      if (oldIdx > newIdx) {
-        reorder = { '-': 1 };
-      }
-
-      console.log(reorder);
-
-      await db.update({
-        in: 'categories',
-        set: {
-          order: reorder,
-        },
-        where: {
-          order: {
-            '-': {
-              low: oldIdx > newIdx ? newIdx - 1 : oldIdx,
-              high: oldIdx > newIdx ? oldIdx : newIdx + 1,
-            },
-          },
-        },
-      });
-
-      await db.update({
-        in: 'links',
-        set: {
-          order: newIdx,
-        },
-        where: {
-          id: movedItem.id,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async getFavicon(url) {
-    try {
-      const req = await fetch(`${url}`, {
-        mode: 'cors',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-      console.log(await req.text());
-      return req;
-    } catch (err) {
-      console.error(err);
-    }
   }
 
   async saveLink(evt) {
     const { id, url, name, cat_id } = evt.detail;
     this.editableLink = { id: null, name: '', url: '', cat: -1 };
     try {
-      // const favicon = await this.getFavicon(url);
       if (id) {
         await db.update({
           in: 'links',
@@ -174,6 +110,7 @@ export class QuickDial extends LitElement {
         from: 'categories',
         order: {
           by: 'order',
+          type: 'asc',
         },
       });
 
@@ -202,6 +139,7 @@ export class QuickDial extends LitElement {
           values: [
             {
               name: name,
+              order: this.categories.length,
             },
           ],
         });

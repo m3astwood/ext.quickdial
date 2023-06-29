@@ -45,7 +45,6 @@ export class CategoryList extends LitElement {
           cat_id: this.category.id,
         },
       });
-      console.log(data);
       this.links = data;
     } catch (err) {
       console.error(err);
@@ -80,7 +79,7 @@ export class CategoryList extends LitElement {
     return html`
       <section class="category" draggable="true">
         <header>
-          <h3>${this.category.name}</h3>
+          <h3>${this.category.order} : ${this.category.name}</h3>
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.name}>edit</button>
           ${
       this.category.id != 0
