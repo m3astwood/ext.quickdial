@@ -3,7 +3,7 @@ import Sortable from 'sortablejs';
 
 import './components/QuickItem.js';
 import './components/CategoryList.js';
-import './components/AddItem.js';
+import './components/AddLink.js';
 import './components/AddCategory.js';
 
 import db from './api/db.js';
@@ -14,7 +14,7 @@ export class QuickDial extends LitElement {
       categories: { type: Array, state: true },
       editableLink: { type: Object, state: true },
       editableCategory: { type: Object, state: true },
-      addItem: { type: Boolean, state: true },
+      addLink: { type: Boolean, state: true },
       addCategory: { type: Boolean, state: true },
     };
   }
@@ -25,7 +25,7 @@ export class QuickDial extends LitElement {
     this.categories = [];
     this.editableLink = { id: null, name: '', url: '' };
     this.editableCategory = { id: null, name: '' };
-    this.addItem = false;
+    this.addLink = false;
     this.addCategory = false;
   }
 
@@ -42,10 +42,6 @@ export class QuickDial extends LitElement {
       handle: 'header',
       easing: 'ease',
       animation: 250,
-      onEnd: (evt) => {
-        console.log('onEnd :', evt.oldIndex, evt.newIndex);
-        this.setOrder(evt.oldIndex, evt.newIndex);
-      },
     });
   }
 
@@ -78,16 +74,15 @@ export class QuickDial extends LitElement {
     } catch (err) {
       console.error(err);
     } finally {
-      this.closeAddItem();
+      this.closeAddLink();
       this.getCategories();
     }
   }
 
   editLink(evt) {
     const { link } = evt.detail;
-    console.log(link);
     this.editableLink = { ...link };
-    this.openAddItem(evt);
+    this.openAddLink(evt);
   }
 
   async deleteLink(evt) {
@@ -182,18 +177,21 @@ export class QuickDial extends LitElement {
     }
   }
 
-  openAddItem(evt) {
+  openAddLink(evt) {
     evt.preventDefault();
-    this.addItem = true;
+    const { id } = evt.detail;
+    this.editableLink = { id: null, name: '', cat_id: id };
+    this.addLink = true;
   }
 
-  closeAddItem() {
-    this.addItem = false;
+  closeAddLink() {
+    this.addLink = false;
     this.editableLink = { id: null, name: '', url: '' };
   }
 
   openAddCategory(evt) {
     evt.preventDefault();
+    this.editableCategory = { id: null, name: '' };
     this.addCategory = true;
   }
 
@@ -204,7 +202,6 @@ export class QuickDial extends LitElement {
   render() {
     return html`
       <header>
-        <a href="#" @click="${this.openAddItem}">add item</a> |
         <a href="#" @click="${this.openAddCategory}">add category</a>
       </header>
 
@@ -215,8 +212,9 @@ export class QuickDial extends LitElement {
       this.categories.map((category) =>
         html`<category-list 
           .category=${category}
-          @edit=${this.editCategory} 
-          @delete=${this.deleteCategory} 
+          @editCategory=${this.editCategory} 
+          @deleteCategory=${this.deleteCategory} 
+          @addLink=${this.openAddLink}
           @editLink=${this.editLink}
           @deleteLink=${this.deleteLink}
         >
@@ -225,12 +223,12 @@ export class QuickDial extends LitElement {
     }
     </main>
 
-    <add-item 
+    <add-link 
       @save="${this.saveLink}" 
-      @close="${this.closeAddItem}"
-      open=${this.addItem}
+      @close="${this.closeAddLink}"
+      open=${this.addLink}
       .link=${this.editableLink}
-    ></add-item >
+    ></add-link >
     
     <add-category 
       @save=${this.saveCategory}

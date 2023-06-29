@@ -54,7 +54,7 @@ export class CategoryList extends LitElement {
   }
 
   _editCategory() {
-    const event = new CustomEvent('edit', {
+    const event = new CustomEvent('editCategory', {
       detail: this.category,
       bubbles: true,
       composed: true,
@@ -66,8 +66,18 @@ export class CategoryList extends LitElement {
   }
 
   _deleteCategory() {
-    const event = new CustomEvent('delete', {
+    const event = new CustomEvent('deleteCategory', {
       detail: this.category,
+      bubbles: true,
+      composed: true,
+    });
+
+    this.dispatchEvent(event);
+  }
+
+  _addLink() {
+    const event = new CustomEvent('addLink', {
+      detail: { id: this.category.id },
       bubbles: true,
       composed: true,
     });
@@ -79,7 +89,8 @@ export class CategoryList extends LitElement {
     return html`
       <section class="category" draggable="true">
         <header>
-          <h3>${this.category.order} : ${this.category.name}</h3>
+          <h3>${this.category.name}</h3>
+          <a href="#" @click="${this._addLink}">add link</a> | 
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.name}>edit</button>
           ${
       this.category.id != 0
@@ -93,7 +104,9 @@ export class CategoryList extends LitElement {
         ${
       this.links?.length > 0
         ? this.links.map((link) =>
-          html`<quick-item .link=${link}></quick-item>`
+          html`<quick-item 
+            .link=${link}
+          ></quick-item>`
         )
         : 'no links'
     }

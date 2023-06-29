@@ -2,7 +2,7 @@ import { css, html, LitElement } from 'lit';
 import db from '../api/db.js';
 import { validate } from 'validate.js';
 
-export class AddItem extends LitElement {
+export class AddLink extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
@@ -137,4 +137,4 @@ export class AddItem extends LitElement {
   }
 }
 
-window.customElements.define('add-item', AddItem);
+window.customElements.define('add-link', AddLink);
