@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit';
+import { live } from 'lit/directives/live.js';
 import db from '../api/db.js';
 import { validate } from 'validate.js';
 
@@ -6,7 +7,7 @@ export class AddLink extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      link: { type: Object },
+      link: { type: Object, reflect: true },
       dialog: { type: Object },
       categories: { type: Array, state: true },
       error: { type: Object, state: true },
@@ -97,18 +98,18 @@ export class AddLink extends LitElement {
       <dialog>
         <form action="submit" @submit="${this.saveItem}">
           <label for="name">name</label>
-          <input type="text" name="name" value="${this.link?.name}">
+          <input type="text" name="name" .value="${live(this.link?.name)}">
 
           <label for="url">url</label>
-          <input type="text" name="url" value="${this.link?.url}">
+          <input type="text" name="url" .value="${live(this.link?.url) ?? ''}">
 
           <select name="cat_id">
             <option value=""></option>
             ${
       this.categories.map((cat) =>
-        html`<option value="${cat.id}" ?selected=${
-          cat.id == this.link?.cat_id
-        }>${cat.name}</option>`
+        html`<option 
+          value="${cat.id}" 
+          ?selected=${cat.id == this.link?.cat_id}>${cat.name}</option>`
       )
     }
           </select>

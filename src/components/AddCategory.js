@@ -1,11 +1,12 @@
 import { css, html, LitElement } from 'lit';
+import { live } from 'lit/directives/live.js';
 import { validate } from 'validate.js';
 
 export class AddCategory extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      category: { type: Object, reflect: true },
+      category: { type: Object },
       error: { type: Object, state: true },
     };
   }
@@ -20,9 +21,13 @@ export class AddCategory extends LitElement {
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
       this.renderRoot.querySelector('dialog').showModal();
-    } else {
-      console.log(at, ne);
+      // } else {
+      //   console.log(at, ne);
     }
+  }
+
+  willUpdate(changedProperties) {
+    console.log(changedProperties);
   }
 
   saveCategory(evt) {
@@ -70,7 +75,7 @@ export class AddCategory extends LitElement {
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
           <label for="name">name</label>
-          <input type="text" name="name" value="${this.category?.name}">
+          <input type="text" name="name" .value="${live(this.category?.name)}">
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>

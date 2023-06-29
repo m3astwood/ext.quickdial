@@ -180,7 +180,9 @@ export class QuickDial extends LitElement {
   openAddLink(evt) {
     evt.preventDefault();
     const { id } = evt.detail;
-    this.editableLink = { id: null, name: '', cat_id: id };
+    if (!this.editableLink.id) {
+      this.editableLink = { id: null, name: '', cat_id: id };
+    }
     this.addLink = true;
   }
 

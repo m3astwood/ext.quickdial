@@ -15,6 +15,7 @@
     "validate.js": "^0.13.1"
   },
   "devDependencies": {
+    "eslint-plugin-lit": "^1.8.3",
     "vite": "^4.3.9",
     "vite-plugin-web-extension": "^3.0.9"
   }

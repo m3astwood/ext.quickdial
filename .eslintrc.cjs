@@ -6,6 +6,7 @@ module.exports = {
   },
   'extends': [
     'eslint:recommended',
+    'plugin:lit/recommended',
   ],
   parserOptions: {
     ecmaVersion: 'latest',

@@ -13,6 +13,7 @@ class QuickMenu extends LitElement {
 
   async saveTab() {
     try {
+      //eslint-disable-next-line no-undef
       const [ ct ] = await browser.tabs.query({
         active: true,
         currentWindow: true,
