@@ -8,7 +8,7 @@ export class CategoryList extends LitElement {
   static get properties() {
     return {
       links: { type: Array, state: true },
-      category: { type: Object },
+      category: { type: Object, reflect: true },
       loading: { type: Boolean, state: true },
     };
   }
@@ -26,8 +26,8 @@ export class CategoryList extends LitElement {
     this.getLinks();
   }
 
-  attributeChangedCallback(at, _ol, ne) {
-    console.log(at, _ol, ne);
+  attributeChangedCallback(at, _ol, _ne) {
+    // console.log(at, _ol, ne);
     if (at == 'category') {
       this.getLinks();
     }
