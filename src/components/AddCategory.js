@@ -6,7 +6,7 @@ export class AddCategory extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      category: { type: Object },
+      category: { type: Object, reflect: true },
       error: { type: Object, state: true },
     };
   }
@@ -21,8 +21,8 @@ export class AddCategory extends LitElement {
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
       this.renderRoot.querySelector('dialog').showModal();
-      // } else {
-      //   console.log(at, ne);
+    } else {
+      console.log(at, ne);
     }
   }
 

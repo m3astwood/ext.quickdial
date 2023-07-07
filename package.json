@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jsstore": "^4.5.4",
+    "dexie": "^3.2.4",
     "lit": "^2.7.2",
     "sortablejs": "^1.15.0",
     "validate.js": "^0.13.1"

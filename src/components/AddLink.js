@@ -25,9 +25,7 @@ export class AddLink extends LitElement {
 
   async loadCategories() {
     try {
-      const categories = await db.select({
-        from: 'categories',
-      });
+      const categories = await db.categories.toArray();
 
       this.categories = categories;
     } catch (err) {

@@ -2,6 +2,7 @@ import { css, html, LitElement } from 'lit';
 
 import './QuickItem.js';
 
+import { liveQuery } from 'dexie';
 import db from '../api/db.js';
 
 export class CategoryList extends LitElement {
@@ -23,34 +24,17 @@ export class CategoryList extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.getLinks();
-  }
+    const linkObservable = liveQuery(() =>
+      db.links
+        .where('cat_id')
+        .equals(this.category.id)
+        .toArray()
+    );
 
-  attributeChangedCallback(at, _ol, _ne) {
-    // console.log(at, _ol, ne);
-    if (at == 'category') {
-      this.getLinks();
-    }
-  }
-
-  async getLinks() {
-    try {
-      this.loading = true;
-      const data = await db.select({
-        from: 'links',
-        order: {
-          by: 'order',
-        },
-        where: {
-          cat_id: this.category.id,
-        },
-      });
-      this.links = data;
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.loading = false;
-    }
+    linkObservable.subscribe({
+      next: (result) => this.links = result,
+      error: (error) => console.error(error),
+    });
   }
 
   _editCategory() {

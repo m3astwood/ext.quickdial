@@ -6,6 +6,7 @@ import './components/CategoryList.js';
 import './components/AddLink.js';
 import './components/AddCategory.js';
 
+import { liveQuery } from 'dexie';
 import db from './api/db.js';
 
 export class QuickDial extends LitElement {
@@ -32,7 +33,12 @@ export class QuickDial extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.getCategories();
+    const catObservable = liveQuery(() => db.categories.toArray());
+
+    catObservable.subscribe({
+      next: (result) => this.categories = result,
+      error: (error) => console.error(error),
+    });
   }
 
   firstUpdated() {
@@ -50,32 +56,25 @@ export class QuickDial extends LitElement {
     this.editableLink = { id: null, name: '', url: '', cat: -1 };
     try {
       if (id) {
-        await db.update({
-          in: 'links',
-          set: {
+        await db.links.update(
+          parseInt(id),
+          {
             url,
             name,
             cat_id,
           },
-          where: { id: parseInt(id) },
-        });
+        );
       } else {
-        await db.insert({
-          into: 'links',
-          values: [
-            {
-              name: name ? name : url,
-              url,
-              cat_id,
-            },
-          ],
+        await db.links.add({
+          name: name ? name : url,
+          url,
+          cat_id,
         });
       }
     } catch (err) {
       console.error(err);
     } finally {
       this.closeAddLink();
-      this.getCategories();
     }
   }
 
@@ -88,62 +87,35 @@ export class QuickDial extends LitElement {
   async deleteLink(evt) {
     const { id } = evt.detail;
     try {
-      await db.remove({
-        from: 'links',
-        where: { id: parseInt(id) },
-      });
-      this.getCategories();
+      await db.links.delete(
+        parseInt(id),
+      );
     } catch (err) {
       console.error(err);
-    }
-  }
-
-  async getCategories() {
-    try {
-      this.loading = true;
-      const data = await db.select({
-        from: 'categories',
-        order: {
-          by: 'order',
-          type: 'asc',
-        },
-      });
-
-      this.categories = [ ...data ];
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.loading = false;
     }
   }
 
   async saveCategory(evt) {
     const { id, name } = evt.detail;
     try {
+      console.log(id, name);
       if (Number.isInteger(id)) {
-        await db.update({
-          in: 'categories',
-          set: {
+        await db.categories.update(
+          id,
+          {
             name,
           },
-          where: { id: id },
-        });
+        );
       } else {
-        await db.insert({
-          into: 'categories',
-          values: [
-            {
-              name: name,
-              order: this.categories.length,
-            },
-          ],
+        await db.categories.add({
+          name: name,
+          order: this.categories.length,
         });
       }
     } catch (err) {
       console.error(err);
     } finally {
       this.closeAddCategory();
-      this.getCategories();
     }
   }
 
@@ -156,24 +128,15 @@ export class QuickDial extends LitElement {
   async deleteCategory(evt) {
     const { id } = evt.detail;
     try {
-      await db.remove({
-        from: 'categories',
-        where: { id: parseInt(id) },
-      });
+      await db.categories.delete(
+        parseInt(id),
+      );
 
-      await db.update({
-        in: 'links',
-        set: {
-          cat_id: 0,
-        },
-        where: {
-          cat_id: parseInt(id),
-        },
+      await db.links.where('cat_id').equals(parseInt(id)).modify({
+        cat_id: 0,
       });
     } catch (err) {
       console.error(err);
-    } finally {
-      this.getCategories();
     }
   }
 
@@ -193,7 +156,9 @@ export class QuickDial extends LitElement {
 
   openAddCategory(evt) {
     evt.preventDefault();
-    this.editableCategory = { id: null, name: '' };
+    if (evt.target.id == 'newCat') {
+      this.editableCategory = { id: null, name: '' };
+    }
     this.addCategory = true;
   }
 
@@ -204,7 +169,7 @@ export class QuickDial extends LitElement {
   render() {
     return html`
       <header>
-        <a href="#" @click="${this.openAddCategory}">add category</a>
+        <a href="#" id="newCat" @click="${this.openAddCategory}">add category</a>
       </header>
 
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
