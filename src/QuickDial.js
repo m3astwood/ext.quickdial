@@ -17,6 +17,7 @@ export class QuickDial extends LitElement {
       editableCategory: { type: Object, state: true },
       addLink: { type: Boolean, state: true },
       addCategory: { type: Boolean, state: true },
+      sortable: { type: Object, state: true },
     };
   }
 
@@ -28,6 +29,7 @@ export class QuickDial extends LitElement {
     this.editableCategory = { id: null, name: '' };
     this.addLink = false;
     this.addCategory = false;
+    this.sortable = {};
   }
 
   connectedCallback() {
@@ -43,11 +45,25 @@ export class QuickDial extends LitElement {
 
   firstUpdated() {
     const categories = this.shadowRoot.querySelector('main');
-    Sortable.create(categories, {
+
+    this.sortable = Sortable.create(categories, {
       group: 'quickdial-categories',
       handle: 'header',
       easing: 'ease',
       animation: 250,
+      store: {
+        get: (sortable) => {
+          const order = localStorage.getItem(sortable.options.group.name);
+          return order ? order.split('|') : [];
+        },
+        set: (sortable) => {
+          const order = sortable.toArray();
+          localStorage.setItem(
+            sortable.options.group.name,
+            order.join('|'),
+          );
+        },
+      },
     });
   }
 
@@ -109,8 +125,12 @@ export class QuickDial extends LitElement {
       } else {
         await db.categories.add({
           name: name,
-          order: this.categories.length,
         });
+
+        localStorage.setItem(
+          this.sortable.options.group.name,
+          [ ...this.sortable.toArray(), name ].join('|'),
+        );
       }
     } catch (err) {
       console.error(err);
@@ -126,15 +146,35 @@ export class QuickDial extends LitElement {
   }
 
   async deleteCategory(evt) {
-    const { id } = evt.detail;
     try {
-      await db.categories.delete(
-        parseInt(id),
-      );
+      const { id } = evt.detail;
 
-      await db.links.where('cat_id').equals(parseInt(id)).modify({
-        cat_id: 0,
-      });
+      // get deleting category by id
+      const dbItem = await db.categories.where({ id });
+      // const delCat = await dbItem.first();
+
+      // delete category
+      await dbItem.delete();
+
+      // // rewrite order saved in localStorage
+      // const order = localStorage
+      //   .getItem(this.sortable.options.group.name)
+      //   .split('|');
+
+      // const idx = order.indexOf(delCat.name);
+      // order.splice(idx, 1);
+      // localStorage.setItem(
+      //   this.sortable.options.group.name,
+      //   order.join('|'),
+      // );
+
+      // put all links into 'default'
+      await db.links
+        .where('cat_id')
+        .equals(parseInt(id))
+        .modify({
+          cat_id: 0,
+        });
     } catch (err) {
       console.error(err);
     }
@@ -176,9 +216,11 @@ export class QuickDial extends LitElement {
 
       <main>
       ${
-      this.categories.map((category) =>
-        html`<category-list 
+      this.categories.length > 0
+        ? this.categories.map((category) =>
+          html`<category-list 
           .category=${category}
+          data-id=${category.name}
           @editCategory=${this.editCategory} 
           @deleteCategory=${this.deleteCategory} 
           @addLink=${this.openAddLink}
@@ -186,7 +228,8 @@ export class QuickDial extends LitElement {
           @deleteLink=${this.deleteLink}
         >
         </category-list>`
-      )
+        )
+        : ''
     }
     </main>
 

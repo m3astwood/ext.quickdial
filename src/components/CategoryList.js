@@ -92,7 +92,7 @@ export class CategoryList extends LitElement {
             .link=${link}
           ></quick-item>`
         )
-        : 'no links'
+        : `no links in ${this.category.name}`
     }
       </section>
     `;
