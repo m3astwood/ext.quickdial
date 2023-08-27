@@ -1,5 +1,4 @@
 import { css, html, LitElement } from 'lit';
-import Sortable from 'sortablejs';
 
 import './components/QuickItem.js';
 import './components/CategoryList.js';
@@ -17,7 +16,6 @@ export class QuickDial extends LitElement {
       editableCategory: { type: Object, state: true },
       addLink: { type: Boolean, state: true },
       addCategory: { type: Boolean, state: true },
-      sortable: { type: Object, state: true },
     };
   }
 
@@ -29,7 +27,6 @@ export class QuickDial extends LitElement {
     this.editableCategory = { id: null, name: '' };
     this.addLink = false;
     this.addCategory = false;
-    this.sortable = {};
   }
 
   connectedCallback() {
@@ -40,30 +37,6 @@ export class QuickDial extends LitElement {
     catObservable.subscribe({
       next: (result) => this.categories = result,
       error: (error) => console.error(error),
-    });
-  }
-
-  firstUpdated() {
-    const categories = this.shadowRoot.querySelector('main');
-
-    this.sortable = Sortable.create(categories, {
-      group: 'quickdial-categories',
-      handle: 'header',
-      easing: 'ease',
-      animation: 250,
-      store: {
-        get: (sortable) => {
-          const order = localStorage.getItem(sortable.options.group.name);
-          return order ? order.split('|') : [];
-        },
-        set: (sortable) => {
-          const order = sortable.toArray();
-          localStorage.setItem(
-            sortable.options.group.name,
-            order.join('|'),
-          );
-        },
-      },
     });
   }
 
@@ -125,12 +98,8 @@ export class QuickDial extends LitElement {
       } else {
         await db.categories.add({
           name: name,
+          order: this.categories.length,
         });
-
-        localStorage.setItem(
-          this.sortable.options.group.name,
-          [ ...this.sortable.toArray(), name ].join('|'),
-        );
       }
     } catch (err) {
       console.error(err);
@@ -148,33 +117,23 @@ export class QuickDial extends LitElement {
   async deleteCategory(evt) {
     try {
       const { id } = evt.detail;
+      db.transaction('rw', db.categories, db.links, async () => {
+        // get deleting category by id
+        const dbItem = await db.categories.where({ id });
 
-      // get deleting category by id
-      const dbItem = await db.categories.where({ id });
-      // const delCat = await dbItem.first();
+        // rewrite orders
 
-      // delete category
-      await dbItem.delete();
+        // delete category
+        await dbItem.delete();
 
-      // // rewrite order saved in localStorage
-      // const order = localStorage
-      //   .getItem(this.sortable.options.group.name)
-      //   .split('|');
-
-      // const idx = order.indexOf(delCat.name);
-      // order.splice(idx, 1);
-      // localStorage.setItem(
-      //   this.sortable.options.group.name,
-      //   order.join('|'),
-      // );
-
-      // put all links into 'default'
-      await db.links
-        .where('cat_id')
-        .equals(parseInt(id))
-        .modify({
-          cat_id: 0,
-        });
+        // put all links into 'default'
+        await db.links
+          .where('cat_id')
+          .equals(parseInt(id))
+          .modify({
+            cat_id: 0,
+          });
+      });
     } catch (err) {
       console.error(err);
     }

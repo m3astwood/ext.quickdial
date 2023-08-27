@@ -10,6 +10,7 @@ db.version(1).stores({
 db.categories.add({
   id: 0,
   name: 'default',
+  order: 0,
 });
 
 export default db;

@@ -73,7 +73,7 @@ export class CategoryList extends LitElement {
     return html`
       <section class="category" draggable="true">
         <header>
-          <h3>${this.category.name}</h3>
+          <h3>${this.category.order} : ${this.category.name}</h3>
           <a href="#" @click="${this._addLink}">add link</a> | 
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.name}>edit</button>
           ${
