@@ -1,6 +1,5 @@
 import { css, html, LitElement } from 'lit';
 
-import './components/QuickItem.js';
 import './components/CategoryList.js';
 import './components/AddLink.js';
 import './components/AddCategory.js';
@@ -174,8 +173,7 @@ export class QuickDial extends LitElement {
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
 
       <main>
-      ${
-      this.categories.length > 0
+      ${this.categories.length > 0
         ? this.categories.map((category) =>
           html`<category-list 
           .category=${category}
@@ -189,7 +187,7 @@ export class QuickDial extends LitElement {
         </category-list>`
         )
         : ''
-    }
+      }
     </main>
 
     <add-link 
@@ -239,7 +237,6 @@ export class QuickDial extends LitElement {
       grid-template-columns: repeat(auto-fill, minmax(min(30em, 100%), 1fr));
       gap: 1em;
     }
-
     `;
   }
 }
