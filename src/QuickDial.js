@@ -1,5 +1,4 @@
 import { css, html, LitElement } from 'lit';
-import Sortable from 'sortablejs';
 
 import './components/QuickItem.js';
 import './components/CategoryList.js';
@@ -38,16 +37,6 @@ export class QuickDial extends LitElement {
     catObservable.subscribe({
       next: (result) => this.categories = result,
       error: (error) => console.error(error),
-    });
-  }
-
-  firstUpdated() {
-    const categories = this.shadowRoot.querySelector('main');
-    Sortable.create(categories, {
-      group: 'quickdial-categories',
-      handle: 'header',
-      easing: 'ease',
-      animation: 250,
     });
   }
 
@@ -175,9 +164,8 @@ export class QuickDial extends LitElement {
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
 
       <main>
-      ${
-      this.categories.map((category) =>
-        html`<category-list 
+      ${this.categories.map((category) =>
+      html`<category-list 
           .category=${category}
           @editCategory=${this.editCategory} 
           @deleteCategory=${this.deleteCategory} 
@@ -186,8 +174,8 @@ export class QuickDial extends LitElement {
           @deleteLink=${this.deleteLink}
         >
         </category-list>`
-      )
-    }
+    )
+      }
     </main>
 
     <add-link 
