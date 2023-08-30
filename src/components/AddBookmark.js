@@ -1,13 +1,12 @@
 import { css, html, LitElement } from 'lit';
 import { live } from 'lit/directives/live.js';
-import db from '../api/db.js';
 import { validate } from 'validate.js';
 
-export class AddLink extends LitElement {
+export class AddBookmark extends LitElement {
   static get properties() {
     return {
       open: { type: Boolean },
-      link: { type: Object, reflect: true },
+      bookmark: { type: Object, reflect: true },
       dialog: { type: Object },
       categories: { type: Array, state: true },
       error: { type: Object, state: true },
@@ -18,44 +17,30 @@ export class AddLink extends LitElement {
     super();
     this.open = false;
     this.categories = [];
+    this.bookmark = { title: '', url: '' };
     this.error = null;
-
-    this.loadCategories();
-  }
-
-  async loadCategories() {
-    try {
-      const categories = await db.categories.toArray();
-
-      this.categories = categories;
-    } catch (err) {
-      console.error(err);
-    }
   }
 
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
-      this.loadCategories();
       this.renderRoot.querySelector('dialog').showModal();
-    } else {
-      console.log(at, ne);
     }
   }
 
   saveItem(evt) {
     evt.preventDefault();
+
     const form = new FormData(evt.target);
     const detail = {
-      name: form.get('name'),
+      title: form.get('title'),
       url: form.get('url'),
     };
 
-    if (form.get('cat_id')) {
-      detail.cat_id = parseInt(form.get('cat_id'));
-    }
+    console.log('save item');
+    console.log(evt.target);
 
-    if (this.link?.id) {
-      detail.id = this.link.id;
+    if (this.bookmark?.id) {
+      detail.id = this.bookmark.id;
     }
 
     this.error = validate({ url: detail.url }, {
@@ -69,7 +54,7 @@ export class AddLink extends LitElement {
         detail,
       });
 
-      this.link = { id: null, name: '', url: '' };
+      this.bookmark = { id: null, title: '', url: '' };
 
       this.dispatchEvent(event);
       this.close();
@@ -86,31 +71,19 @@ export class AddLink extends LitElement {
 
   render() {
     return html`
-      ${
-      this.error
+      ${this.error
         ? html`<div class="error">
         Error : ${this.error.url.map((e) => html`${e} `)}
       </div>`
         : ''
-    }
+      }
       <dialog>
-        <form action="submit" @submit="${this.saveItem}">
-          <label for="name">name</label>
-          <input type="text" name="name" .value="${live(this.link?.name)}">
+        <form @submit="${this.saveItem}">
+          <label for="title">title</label>
+          <input type="text" title="title" .value="${live(this.bookmark?.title)}">
 
           <label for="url">url</label>
-          <input type="text" name="url" .value="${live(this.link?.url) ?? ''}">
-
-          <select name="cat_id">
-            <option value=""></option>
-            ${
-      this.categories.map((cat) =>
-        html`<option 
-          value="${cat.id}" 
-          ?selected=${cat.id == this.link?.cat_id}>${cat.name}</option>`
-      )
-    }
-          </select>
+          <input type="text" title="url" .value="${live(this.bookmark?.url) ?? ''}">
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
@@ -136,4 +109,4 @@ export class AddLink extends LitElement {
   }
 }
 
-window.customElements.define('add-link', AddLink);
+window.customElements.define('add-bookmark', AddBookmark);

@@ -2,20 +2,18 @@ import { css, html, LitElement } from 'lit';
 
 import './components/QuickItem.js';
 import './components/CategoryList.js';
-import './components/AddLink.js';
+import './components/AddBookmark.js';
 import './components/AddCategory.js';
-
-import { liveQuery } from 'dexie';
-import db from './api/db.js';
 
 export class QuickDial extends LitElement {
   static get properties() {
     return {
       categories: { type: Array, state: true },
-      editableLink: { type: Object, state: true },
+      editableBookmark: { type: Object, state: true },
       editableCategory: { type: Object, state: true },
-      addLink: { type: Boolean, state: true },
+      addBookmark: { type: Boolean, state: true },
       addCategory: { type: Boolean, state: true },
+      bookmarkRoot: { type: String, state: true }
     };
   }
 
@@ -23,81 +21,95 @@ export class QuickDial extends LitElement {
     super();
     this.loading = false;
     this.categories = [];
-    this.editableLink = { id: null, name: '', url: '' };
-    this.editableCategory = { id: null, name: '' };
-    this.addLink = false;
+    this.editableBookmark = { id: null, title: '', url: '' };
+    this.editableCategory = { id: null, title: '' };
+    this.addBookmark = false;
     this.addCategory = false;
+    this.bookmarkRoot = '';
   }
 
   connectedCallback() {
     super.connectedCallback();
-
-    const catObservable = liveQuery(() => db.categories.toArray());
-
-    catObservable.subscribe({
-      next: (result) => this.categories = result,
-      error: (error) => console.error(error),
-    });
   }
 
-  async saveLink(evt) {
-    const { id, url, name, cat_id } = evt.detail;
-    this.editableLink = { id: null, name: '', url: '', cat: -1 };
+  firstUpdated() {
+    this.getFolders();
+  }
+
+  getBookmarkRoot() {
+    if (!this.bookmarkRoot) {
+      this.bookmarkRoot = localStorage.getItem('quickdialRoot');
+    }
+
+    return this.bookmarkRoot;
+  }
+
+  async getFolders() {
+    try {
+      const bookmarkRootId = this.getBookmarkRoot();
+
+      let bookmarks = await browser.bookmarks.getChildren(bookmarkRootId);
+      let rootFolder = await browser.bookmarks.get(bookmarkRootId);
+
+      console.log(rootFolder);
+
+      this.categories = [...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder')];
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async saveBookmark(evt) {
+    const { id, url, title } = evt.detail;
+    this.editableBookmark = { id: null, title: '', url: '' };
     try {
       if (id) {
-        await db.links.update(
-          parseInt(id),
-          {
-            url,
-            name,
-            cat_id,
-          },
-        );
+        await browser.runtime.sendMessage({
+          type: 'bookmark.update',
+          bookmark: { id, url, title }
+        });
       } else {
-        await db.links.add({
-          name: name ? name : url,
-          url,
-          cat_id,
+        await browser.runtime.sendMessage({
+          type: 'bookmark.create',
+          bookmark: { url, title }
         });
       }
     } catch (err) {
       console.error(err);
     } finally {
-      this.closeAddLink();
+      this.closeAddBookmark();
     }
   }
 
-  editLink(evt) {
-    const { link } = evt.detail;
-    this.editableLink = { ...link };
-    this.openAddLink(evt);
+  editBookmark(evt) {
+    const { bookmark } = evt.detail;
+    this.editableBookmark = { ...bookmark };
+    this.openAddBookmark(evt);
   }
 
-  async deleteLink(evt) {
+  async deleteBookmark(evt) {
     const { id } = evt.detail;
     try {
-      await db.links.delete(
-        parseInt(id),
-      );
+      browser.bookmarks.remove(id);
     } catch (err) {
       console.error(err);
     }
   }
 
   async saveCategory(evt) {
-    const { id, name } = evt.detail;
+    const { id, title } = evt.detail;
     try {
-      console.log(id, name);
+      console.log(id, title);
       if (Number.isInteger(id)) {
         await db.categories.update(
           id,
           {
-            name,
+            title,
           },
         );
       } else {
         await db.categories.add({
-          name: name,
+          title,
           order: this.categories.length,
         });
       }
@@ -117,36 +129,29 @@ export class QuickDial extends LitElement {
   async deleteCategory(evt) {
     const { id } = evt.detail;
     try {
-      await db.categories.delete(
-        parseInt(id),
-      );
-
-      await db.links.where('cat_id').equals(parseInt(id)).modify({
-        cat_id: 0,
-      });
+      // try to delete
     } catch (err) {
       console.error(err);
     }
   }
 
-  openAddLink(evt) {
+  openAddBookmark(evt) {
     evt.preventDefault();
-    const { id } = evt.detail;
-    if (!this.editableLink.id) {
-      this.editableLink = { id: null, name: '', cat_id: id };
+    if (!this.editableBookmark.id) {
+      this.editableBookmark = { id: null, title: '' };
     }
-    this.addLink = true;
+    this.addBookmark = true;
   }
 
-  closeAddLink() {
-    this.addLink = false;
-    this.editableLink = { id: null, name: '', url: '' };
+  closeAddBookmark() {
+    this.addBookmark = false;
+    this.editableBookmark = { id: null, title: '', url: '' };
   }
 
   openAddCategory(evt) {
     evt.preventDefault();
     if (evt.target.id == 'newCat') {
-      this.editableCategory = { id: null, name: '' };
+      this.editableCategory = { id: null, title: '' };
     }
     this.addCategory = true;
   }
@@ -169,21 +174,21 @@ export class QuickDial extends LitElement {
           .category=${category}
           @editCategory=${this.editCategory} 
           @deleteCategory=${this.deleteCategory} 
-          @addLink=${this.openAddLink}
-          @editLink=${this.editLink}
-          @deleteLink=${this.deleteLink}
+          @addBookmark=${this.openAddBookmark}
+          @editBookmark=${this.editBookmark}
+          @deleteBookmark=${this.deleteBookmark}
         >
         </category-list>`
     )
       }
     </main>
 
-    <add-link 
-      @save="${this.saveLink}" 
-      @close="${this.closeAddLink}"
-      open=${this.addLink}
-      .link=${this.editableLink}
-    ></add-link >
+    <add-bookmark 
+      @save="${this.saveBookmark}" 
+      @close="${this.closeAddBookmark}"
+      open=${this.addBookmark}
+      .bookmark=${this.editableBookmark}
+    ></add-bookmark>
     
     <add-category 
       @save=${this.saveCategory}

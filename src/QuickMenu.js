@@ -1,5 +1,4 @@
 import { css, html, LitElement } from 'lit';
-import db from './api/db.js';
 
 class QuickMenu extends LitElement {
   static get properties() {
@@ -14,7 +13,7 @@ class QuickMenu extends LitElement {
   async saveTab() {
     try {
       //eslint-disable-next-line no-undef
-      const [ ct ] = await browser.tabs.query({
+      const [ct] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
@@ -22,15 +21,6 @@ class QuickMenu extends LitElement {
       if (!ct) throw new Error('No current tab data found');
 
       console.log(ct);
-      await db.insert({
-        into: 'links',
-        values: [
-          {
-            name: ct.title,
-            url: ct.url,
-          },
-        ],
-      });
     } catch (err) {
       console.error(err);
     }

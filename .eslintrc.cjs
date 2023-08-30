@@ -3,6 +3,7 @@ module.exports = {
   'env': {
     'browser': true,
     'node': true,
+    'webextensions': true
   },
   'extends': [
     'eslint:recommended',
