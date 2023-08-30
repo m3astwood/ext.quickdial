@@ -3,21 +3,22 @@ import { css, html, LitElement } from 'lit';
 export class QuickItem extends LitElement {
   static get properties() {
     return {
-      link: { type: Object },
+      bookmark: { type: Object },
     };
   }
 
   constructor() {
     super();
-    this.link = {};
+    this.bookmark = { id: '', title: '', url: '' };
+
   }
 
   _delete() {
-    const event = new CustomEvent('deleteLink', {
+    const event = new CustomEvent('deleteBookmark', {
       bubbles: true,
       composed: true,
       detail: {
-        id: this.link.id,
+        id: this.bookmark.id,
       },
     });
 
@@ -25,15 +26,14 @@ export class QuickItem extends LitElement {
   }
 
   _edit() {
-    const event = new CustomEvent('editLink', {
+    const event = new CustomEvent('editBookmark', {
       bubbles: true,
       composed: true,
       detail: {
-        link: {
-          id: this.link.id,
-          url: this.link.url,
-          name: this.link.name,
-          cat_id: this.link.cat_id,
+        bookmark: {
+          id: this.bookmark.id,
+          url: this.bookmark.url,
+          title: this.bookmark.title,
         },
       },
     });
@@ -43,9 +43,9 @@ export class QuickItem extends LitElement {
 
   render() {
     return html`
-      <div class="item" id="link-${this.link.id}">
-        <a href="${this.link.url}">
-          ${this.link.name ? this.link.name : this.link.url}
+      <div class="item" id="${this.bookmark.id}">
+        <a href="${this.bookmark.url}">
+          ${this.bookmark.title ? this.bookmark.title : this.bookmark.url}
         </a>
 
         <div class="controls">

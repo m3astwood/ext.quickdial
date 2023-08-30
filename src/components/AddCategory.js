@@ -21,13 +21,7 @@ export class AddCategory extends LitElement {
   attributeChangedCallback(at, _ol, ne) {
     if (at == 'open' && ne == 'true') {
       this.renderRoot.querySelector('dialog').showModal();
-    } else {
-      console.log(at, ne);
     }
-  }
-
-  willUpdate(changedProperties) {
-    console.log(changedProperties);
   }
 
   saveCategory(evt) {
@@ -65,13 +59,12 @@ export class AddCategory extends LitElement {
 
   render() {
     return html`
-      ${
-      this.error
+      ${this.error
         ? html`<div class="error">
         Error : ${this.error.name.map((e) => html`${e} `)}
       </div>`
         : ''
-    }
+      }
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
           <label for="name">name</label>

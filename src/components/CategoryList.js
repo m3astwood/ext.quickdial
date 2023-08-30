@@ -2,13 +2,10 @@ import { css, html, LitElement } from 'lit';
 
 import './QuickItem.js';
 
-import { liveQuery } from 'dexie';
-import db from '../api/db.js';
-
 export class CategoryList extends LitElement {
   static get properties() {
     return {
-      links: { type: Array, state: true },
+      bookmarks: { type: Array, state: true },
       category: { type: Object, reflect: true },
       loading: { type: Boolean, state: true },
     };
@@ -17,24 +14,31 @@ export class CategoryList extends LitElement {
   constructor() {
     super();
     this.category = {};
-    this.links = [];
+    this.bookmarks = [];
     this.loading = false;
   }
 
   connectedCallback() {
     super.connectedCallback();
 
-    const linkObservable = liveQuery(() =>
-      db.links
-        .where('cat_id')
-        .equals(this.category.id)
-        .toArray()
-    );
+    if (this.category.title == 'quickdial') {
+      this.category.title = 'uncategorised'
+    }
 
-    linkObservable.subscribe({
-      next: (result) => this.links = result,
-      error: (error) => console.error(error),
-    });
+  }
+
+  firstUpdated() {
+    this.getBookmarks();
+  }
+
+  async getBookmarks() {
+    try {
+      let bookmarks = await browser.bookmarks.getChildren(this.category.id);
+
+      this.bookmarks = bookmarks.filter(bm => bm.type == 'bookmark');
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   _editCategory() {
@@ -59,8 +63,8 @@ export class CategoryList extends LitElement {
     this.dispatchEvent(event);
   }
 
-  _addLink() {
-    const event = new CustomEvent('addLink', {
+  _addBookmark() {
+    const event = new CustomEvent('addBookmark', {
       detail: { id: this.category.id },
       bubbles: true,
       composed: true,
@@ -73,27 +77,39 @@ export class CategoryList extends LitElement {
     return html`
       <section class="category" draggable="true">
         <header>
+<<<<<<< HEAD
           <h3>${this.category.order} : ${this.category.name}</h3>
           <a href="#" @click="${this._addLink}">add link</a> | 
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.name}>edit</button>
           ${
       this.category.id != 0
+=======
+          <h3>${this.category.title}</h3>
+          <a href="#" @click="${this._addBookmark}">add bookmark</a>  
+          ${this.category.title != 'uncategorised'
+>>>>>>> fa530fa (through rewrite to save items to bookmarks over db)
         ? html`
+          |
+          <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.title}>edit</button>
           <button @click=${this._deleteCategory} data-id=${this.category.id}>delete</button>
           `
         : ''
-    }
+      }
         </header>
 
-        ${
-      this.links?.length > 0
-        ? this.links.map((link) =>
+        ${this.bookmarks?.length > 0
+        ? this.bookmarks.map((bookmark) =>
           html`<quick-item 
-            .link=${link}
+            .bookmark=${bookmark}
           ></quick-item>`
         )
+<<<<<<< HEAD
         : `no links in ${this.category.name}`
     }
+=======
+        : 'no bookmarks'
+      }
+>>>>>>> fa530fa (through rewrite to save items to bookmarks over db)
       </section>
     `;
   }
