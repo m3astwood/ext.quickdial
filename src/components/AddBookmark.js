@@ -30,20 +30,9 @@ export class AddBookmark extends LitElement {
   saveItem(evt) {
     evt.preventDefault();
 
-    const form = new FormData(evt.target);
-    const detail = {
-      title: form.get('title'),
-      url: form.get('url'),
-    };
+    console.log(this.bookmark);
 
-    console.log('save item');
-    console.log(evt.target);
-
-    if (this.bookmark?.id) {
-      detail.id = this.bookmark.id;
-    }
-
-    this.error = validate({ url: detail.url }, {
+    this.error = validate({ url: this.bookmark.url }, {
       url: { presence: { allowEmpty: false }, url: { allowLocal: true } },
     });
 
@@ -51,7 +40,7 @@ export class AddBookmark extends LitElement {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
-        detail,
+        detail: this.bookmark,
       });
 
       this.bookmark = { id: null, title: '', url: '' };
@@ -80,10 +69,10 @@ export class AddBookmark extends LitElement {
       <dialog>
         <form @submit="${this.saveItem}">
           <label for="title">title</label>
-          <input type="text" title="title" .value="${live(this.bookmark?.title)}">
+          <input type="text" title="title" .value="${live(this.bookmark?.title)}" @input=${evt => this.bookmark.title = evt.target.value}>
 
           <label for="url">url</label>
-          <input type="text" title="url" .value="${live(this.bookmark?.url) ?? ''}">
+          <input type="text" title="url" .value="${live(this.bookmark?.url) ?? ''}" @input=${evt => this.bookmark.url = evt.target.value}>
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
