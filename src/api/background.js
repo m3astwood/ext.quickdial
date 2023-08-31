@@ -14,30 +14,3 @@ browser.runtime.onInstalled.addListener((details) => {
     }, 500);
   }
 });
-
-browser.runtime.onMessage.addListener((message) => {
-  console.log(message.type);
-  if (message.type == 'bookmark.create') {
-    const { title, url } = message.bookmark;
-
-    browser.bookmarks.create({
-      title: title ? title : url,
-      parentId: this.getBookmarkRoot(),
-      url
-    });
-
-  } else if (message.type == 'bookmark.update') {
-    const { id, title, url } = message.bookmark;
-    console.log({ id, title, url });
-    browser.bookmarks.update(
-      id,
-      {
-        title,
-        url,
-      },
-    );
-
-  } else if (message.type == 'bookmark.del') {
-    // add bookmark refresh window?
-  }
-});

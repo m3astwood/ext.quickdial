@@ -1,8 +1,12 @@
 import { css, html, LitElement } from 'lit';
 
 import './QuickItem.js';
+import { BookmarksController } from '../controllers/bookmarks.js';
 
 export class CategoryList extends LitElement {
+
+  bookmarksController = new BookmarksController(this)
+
   static get properties() {
     return {
       bookmarks: { type: Array, state: true },
@@ -24,21 +28,10 @@ export class CategoryList extends LitElement {
     if (this.category.title == 'quickdial') {
       this.category.title = 'uncategorised'
     }
-
   }
 
-  firstUpdated() {
-    this.getBookmarks();
-  }
-
-  async getBookmarks() {
-    try {
-      let bookmarks = await browser.bookmarks.getChildren(this.category.id);
-
-      this.bookmarks = bookmarks.filter(bm => bm.type == 'bookmark');
-    } catch (err) {
-      console.error(err);
-    }
+  async firstUpdated() {
+    this.bookmarks = await this.bookmarksController.getBookmarks(this.category.id);
   }
 
   _editCategory() {
@@ -47,8 +40,6 @@ export class CategoryList extends LitElement {
       bubbles: true,
       composed: true,
     });
-
-    console.log(this.category);
 
     this.dispatchEvent(event);
   }

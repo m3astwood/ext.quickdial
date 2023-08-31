@@ -4,7 +4,13 @@ import './components/CategoryList.js';
 import './components/AddBookmark.js';
 import './components/AddCategory.js';
 
+import { BookmarksController } from './controllers/bookmarks.js';
+
 export class QuickDial extends LitElement {
+
+  // controllers
+  bookmarksController = new BookmarksController(this)
+
   static get properties() {
     return {
       categories: { type: Array, state: true },
@@ -31,53 +37,8 @@ export class QuickDial extends LitElement {
     super.connectedCallback();
   }
 
-  firstUpdated() {
-    this.getFolders();
-  }
-
-  getBookmarkRoot() {
-    if (!this.bookmarkRoot) {
-      this.bookmarkRoot = localStorage.getItem('quickdialRoot');
-    }
-
-    return this.bookmarkRoot;
-  }
-
-  async getFolders() {
-    try {
-      const bookmarkRootId = this.getBookmarkRoot();
-
-      let bookmarks = await browser.bookmarks.getChildren(bookmarkRootId);
-      let rootFolder = await browser.bookmarks.get(bookmarkRootId);
-
-      console.log(rootFolder);
-
-      this.categories = [...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder')];
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async saveBookmark(evt) {
-    const { id, url, title } = evt.detail;
-    this.editableBookmark = { id: null, title: '', url: '' };
-    try {
-      if (id) {
-        await browser.runtime.sendMessage({
-          type: 'bookmark.update',
-          bookmark: { id, url, title }
-        });
-      } else {
-        await browser.runtime.sendMessage({
-          type: 'bookmark.create',
-          bookmark: { url, title }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      this.closeAddBookmark();
-    }
+  async firstUpdated() {
+    this.categories = await this.bookmarksController.getFolders();
   }
 
   editBookmark(evt) {
@@ -86,32 +47,28 @@ export class QuickDial extends LitElement {
     this.openAddBookmark(evt);
   }
 
-  async deleteBookmark(evt) {
-    const { id } = evt.detail;
+  async saveBookmark(evt) {
     try {
-      browser.bookmarks.remove(id);
+      const { id, title, url } = evt.detail;
+      this.bookmarksController.save({ id, title, url })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async deleteBookmark(evt) {
+    try {
+      const { id } = evt.detail;
+      this.bookmarksController.delete(id)
     } catch (err) {
       console.error(err);
     }
   }
 
   async saveCategory(evt) {
-    const { id, title } = evt.detail;
     try {
-      console.log(id, title);
-      if (Number.isInteger(id)) {
-        await db.categories.update(
-          id,
-          {
-            title,
-          },
-        );
-      } else {
-        await db.categories.add({
-          title,
-          order: this.categories.length,
-        });
-      }
+      const { id, title } = evt.detail;
+      this.bookmarksController.save({ id, title })
     } catch (err) {
       console.error(err);
     } finally {

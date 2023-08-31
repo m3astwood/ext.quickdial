@@ -26,25 +26,19 @@ export class AddCategory extends LitElement {
 
   saveCategory(evt) {
     evt.preventDefault();
-    const form = new FormData(evt.target);
-    const detail = { name: form.get('name') };
 
-    if (Number.isInteger(this.category?.id)) {
-      detail.id = this.category.id;
-    }
-
-    this.error = validate({ name: detail.name }, {
-      name: { presence: { allowEmpty: false } },
+    this.error = validate({ title: this.category.title }, {
+      title: { presence: { allowEmpty: false } },
     });
 
     if (!this.error) {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
-        detail,
+        detail: this.category,
       });
 
-      this.category = { id: null, name: '' };
+      this.category = { id: null, title: '' };
 
       this.dispatchEvent(event);
       this.close();
@@ -61,14 +55,14 @@ export class AddCategory extends LitElement {
     return html`
       ${this.error
         ? html`<div class="error">
-        Error : ${this.error.name.map((e) => html`${e} `)}
+        Error : ${this.error.title.map((e) => html`${e} `)}
       </div>`
         : ''
       }
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
-          <label for="name">name</label>
-          <input type="text" name="name" .value="${live(this.category?.name)}">
+          <label for="title">title</label>
+          <input type="text" title="title" .value="${live(this.category?.title)}" @input=${evt => this.category.title = evt.target.value}>
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
