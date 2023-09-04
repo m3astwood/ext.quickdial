@@ -5,7 +5,7 @@ import { BookmarksController } from '../controllers/bookmarks.js';
 
 export class CategoryList extends LitElement {
 
-  bookmarksController = new BookmarksController(this)
+  bookmarksController = new BookmarksController(this);
 
   static get properties() {
     return {
@@ -26,19 +26,19 @@ export class CategoryList extends LitElement {
     super.connectedCallback();
 
     if (this.category.title == 'quickdial') {
-      this.category.title = 'uncategorised'
+      this.category.title = 'uncategorised';
     }
   }
 
   async firstUpdated() {
-    this.bookmarks = await this.bookmarksController.getBookmarks(this.category.id);
+    await this.bookmarksController.getBookmarks(this.category.id);
   }
 
   _editCategory() {
     const event = new CustomEvent('editCategory', {
-      detail: this.category,
       bubbles: true,
       composed: true,
+      detail: { category: this.category },
     });
 
     this.dispatchEvent(event);
@@ -55,8 +55,11 @@ export class CategoryList extends LitElement {
   }
 
   _addBookmark() {
+    // this.bookmarksController.editing.parentId = this.category.id;
+    // this.bookmarksController.bookmarkModal = true;
+
     const event = new CustomEvent('addBookmark', {
-      detail: { id: this.category.id },
+      detail: { parentId: this.category.id },
       bubbles: true,
       composed: true,
     });
@@ -88,8 +91,8 @@ export class CategoryList extends LitElement {
       }
         </header>
 
-        ${this.bookmarks?.length > 0
-        ? this.bookmarks.map((bookmark) =>
+        ${this.bookmarksController.list?.length > 0
+        ? this.bookmarksController.list.map((bookmark) =>
           html`<quick-item 
             .bookmark=${bookmark}
           ></quick-item>`

@@ -30,6 +30,7 @@ export class QuickItem extends LitElement {
       bubbles: true,
       composed: true,
       detail: {
+        parentId: this.bookmark.parentId,
         bookmark: {
           id: this.bookmark.id,
           url: this.bookmark.url,

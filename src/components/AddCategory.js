@@ -5,7 +5,6 @@ import { validate } from 'validate.js';
 export class AddCategory extends LitElement {
   static get properties() {
     return {
-      open: { type: Boolean },
       category: { type: Object, reflect: true },
       error: { type: Object, state: true },
     };
@@ -13,15 +12,8 @@ export class AddCategory extends LitElement {
 
   constructor() {
     super();
-    this.open = false;
     this.error = null;
     this.category = {};
-  }
-
-  attributeChangedCallback(at, _ol, ne) {
-    if (at == 'open' && ne == 'true') {
-      this.renderRoot.querySelector('dialog').showModal();
-    }
   }
 
   saveCategory(evt) {
@@ -35,10 +27,12 @@ export class AddCategory extends LitElement {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
-        detail: this.category,
+        detail: {
+          category: this.category
+        },
       });
 
-      this.category = { id: null, title: '' };
+      this.category = {};
 
       this.dispatchEvent(event);
       this.close();
@@ -49,6 +43,15 @@ export class AddCategory extends LitElement {
     this.renderRoot.querySelector('dialog').close();
     const event = new Event('close', { bubbles: true, composed: true });
     this.dispatchEvent(event);
+  }
+
+  open(category) {
+    this.category = {
+      id: category?.id ?? '',
+      title: category?.title ?? '',
+    };
+
+    this.shadowRoot.querySelector('dialog').showModal();
   }
 
   render() {

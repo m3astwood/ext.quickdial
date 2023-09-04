@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
 
 import './components/CategoryList.js';
-import './components/AddBookmark.js';
+import { AddBookmark } from './components/AddBookmark.js';
 import './components/AddCategory.js';
 
 import { BookmarksController } from './controllers/bookmarks.js';
@@ -9,16 +9,11 @@ import { BookmarksController } from './controllers/bookmarks.js';
 export class QuickDial extends LitElement {
 
   // controllers
-  bookmarksController = new BookmarksController(this)
+  bookmarksController = new BookmarksController(this);
 
   static get properties() {
     return {
       categories: { type: Array, state: true },
-      editableBookmark: { type: Object, state: true },
-      editableCategory: { type: Object, state: true },
-      addBookmark: { type: Boolean, state: true },
-      addCategory: { type: Boolean, state: true },
-      bookmarkRoot: { type: String, state: true }
     };
   }
 
@@ -26,11 +21,6 @@ export class QuickDial extends LitElement {
     super();
     this.loading = false;
     this.categories = [];
-    this.editableBookmark = { id: null, title: '', url: '' };
-    this.editableCategory = { id: null, title: '' };
-    this.addBookmark = false;
-    this.addCategory = false;
-    this.bookmarkRoot = '';
   }
 
   connectedCallback() {
@@ -42,24 +32,25 @@ export class QuickDial extends LitElement {
   }
 
   editBookmark(evt) {
-    const { bookmark } = evt.detail;
-    this.editableBookmark = { ...bookmark };
-    this.openAddBookmark(evt);
+    const { parentId, bookmark } = evt.detail;
+    const modal = this.shadowRoot.querySelector('add-bookmark');
+
+    modal.open(parentId, bookmark);
   }
 
   async saveBookmark(evt) {
     try {
-      const { id, title, url } = evt.detail;
-      this.bookmarksController.save({ id, title, url })
+      const { id, title, url, parentId } = evt.detail;
+      this.bookmarksController.save({ id, title, url, parentId });
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   }
 
   async deleteBookmark(evt) {
     try {
       const { id } = evt.detail;
-      this.bookmarksController.delete(id)
+      this.bookmarksController.delete(id);
     } catch (err) {
       console.error(err);
     }
@@ -67,24 +58,24 @@ export class QuickDial extends LitElement {
 
   async saveCategory(evt) {
     try {
-      const { id, title } = evt.detail;
-      this.bookmarksController.save({ id, title })
+      const { category } = evt.detail;
+      this.bookmarksController.save(category);
     } catch (err) {
       console.error(err);
-    } finally {
-      this.closeAddCategory();
     }
   }
 
   editCategory(evt) {
-    const category = { ...evt.detail };
-    this.editableCategory = { ...category };
-    this.openAddCategory(evt);
+    evt.preventDefault();
+    const { category } = evt.detail;
+
+    const modal = this.shadowRoot.querySelector('add-category');
+    modal.open(category);
   }
 
   async deleteCategory(evt) {
     try {
-      // try to delete
+      this.bookmarksController.delete(id);
     } catch (err) {
       console.error(err);
     }
@@ -92,27 +83,15 @@ export class QuickDial extends LitElement {
 
   openAddBookmark(evt) {
     evt.preventDefault();
-    if (!this.editableBookmark.id) {
-      this.editableBookmark = { id: null, title: '' };
-    }
-    this.addBookmark = true;
-  }
-
-  closeAddBookmark() {
-    this.addBookmark = false;
-    this.editableBookmark = { id: null, title: '', url: '' };
+    const { parentId } = evt.detail;
+    const modal = this.shadowRoot.querySelector('add-bookmark');
+    modal.open(parentId);
   }
 
   openAddCategory(evt) {
     evt.preventDefault();
-    if (evt.target.id == 'newCat') {
-      this.editableCategory = { id: null, title: '' };
-    }
-    this.addCategory = true;
-  }
-
-  closeAddCategory() {
-    this.addCategory = false;
+    const modal = this.shadowRoot.querySelector('add-category');
+    modal.open();
   }
 
   render() {
@@ -143,16 +122,12 @@ export class QuickDial extends LitElement {
 
     <add-bookmark 
       @save="${this.saveBookmark}" 
-      @close="${this.closeAddBookmark}"
-      open=${this.addBookmark}
-      .bookmark=${this.editableBookmark}
+      open=${this.bookmarksController.bookmarkModal}
     ></add-bookmark>
     
     <add-category 
       @save=${this.saveCategory}
-      @close=${this.closeAddCategory}
       open=${this.addCategory}
-      .category=${this.editableCategory}
     ></add-category >
   `;
   }

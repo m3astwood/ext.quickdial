@@ -1,11 +1,14 @@
 import { css, html, LitElement } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { validate } from 'validate.js';
+import { BookmarksController } from '../controllers/bookmarks';
 
 export class AddBookmark extends LitElement {
+  bookmarksController = new BookmarksController(this)
+
   static get properties() {
     return {
-      open: { type: Boolean },
+      // open: { type: Boolean },
       bookmark: { type: Object, reflect: true },
       dialog: { type: Object },
       categories: { type: Array, state: true },
@@ -15,22 +18,18 @@ export class AddBookmark extends LitElement {
 
   constructor() {
     super();
-    this.open = false;
+    // this.open = false;
     this.categories = [];
-    this.bookmark = { title: '', url: '' };
+    this.bookmark = { title: '', url: '', parentId: '' };
     this.error = null;
   }
 
-  attributeChangedCallback(at, _ol, ne) {
-    if (at == 'open' && ne == 'true') {
-      this.renderRoot.querySelector('dialog').showModal();
-    }
+  async firstUpdated() {
+    this.categories = await this.bookmarksController.getFolders()
   }
 
-  saveItem(evt) {
+  saveBookmark(evt) {
     evt.preventDefault();
-
-    console.log(this.bookmark);
 
     this.error = validate({ url: this.bookmark.url }, {
       url: { presence: { allowEmpty: false }, url: { allowLocal: true } },
@@ -58,6 +57,17 @@ export class AddBookmark extends LitElement {
     this.dispatchEvent(event);
   }
 
+  open(parentId, bookmark) {
+    this.bookmark = {
+      parentId,
+      id: bookmark?.id ?? '',
+      title: bookmark?.title ?? '',
+      url: bookmark?.url ?? ''
+    };
+
+    this.renderRoot.querySelector('dialog').showModal();
+  }
+
   render() {
     return html`
       ${this.error
@@ -67,12 +77,16 @@ export class AddBookmark extends LitElement {
         : ''
       }
       <dialog>
-        <form @submit="${this.saveItem}">
+        <form @submit="${this.saveBookmark}">
           <label for="title">title</label>
           <input type="text" title="title" .value="${live(this.bookmark?.title)}" @input=${evt => this.bookmark.title = evt.target.value}>
 
           <label for="url">url</label>
           <input type="text" title="url" .value="${live(this.bookmark?.url) ?? ''}" @input=${evt => this.bookmark.url = evt.target.value}>
+
+          <select @change=${evt => this.bookmark.parentId = evt.target.value} .value=${this.bookmark.parentId}>
+            ${this.categories.map(c => html`<option value=${c.id}>${c.title}</option>`)}
+          </select>
 
           <button type="button" @click="${this.close}">cancel</button>
           <button type="submit">save</button>
