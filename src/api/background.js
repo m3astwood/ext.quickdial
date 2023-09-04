@@ -14,3 +14,4 @@ browser.runtime.onInstalled.addListener((details) => {
     }, 500);
   }
 });
+

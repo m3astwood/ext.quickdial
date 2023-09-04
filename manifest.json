@@ -10,7 +10,7 @@
   },
   "background": {
     "scripts": ["src/api/background.js"],
-    "persistent": true,
+    "persistent": false,
     "type": "module"
   },
   "permissions": ["storage", "activeTab", "bookmarks"],
