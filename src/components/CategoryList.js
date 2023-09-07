@@ -24,10 +24,6 @@ export class CategoryList extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
-    if (this.category.title == 'quickdial') {
-      this.category.title = 'uncategorised';
-    }
   }
 
   async firstUpdated() {
@@ -55,9 +51,6 @@ export class CategoryList extends LitElement {
   }
 
   _addBookmark() {
-    // this.bookmarksController.editing.parentId = this.category.id;
-    // this.bookmarksController.bookmarkModal = true;
-
     const event = new CustomEvent('addBookmark', {
       detail: { parentId: this.category.id },
       bubbles: true,

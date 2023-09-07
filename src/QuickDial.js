@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
 
 import './components/CategoryList.js';
-import { AddBookmark } from './components/AddBookmark.js';
+import './components/AddBookmark.js';
 import './components/AddCategory.js';
 
 import { BookmarksController } from './controllers/bookmarks.js';

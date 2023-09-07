@@ -5,7 +5,6 @@ export class BookmarksController {
 
     this.rootId = '';
     this.list = [];
-
   }
 
   getRootId() {
@@ -18,13 +17,24 @@ export class BookmarksController {
 
   async save({ id, url, title, parentId }) {
     if (id) {
-      browser.bookmarks.update(
-        id,
-        {
-          title,
-          url,
-        },
-      );
+      const [bm] = await browser.bookmarks.get(id);
+      if (bm.parentId != parentId) {
+        browser.bookmarks.move(
+          id,
+          {
+            parentId
+          }
+        );
+      }
+      if (bm.title != title || bm.url != url) {
+        browser.bookmarks.update(
+          id,
+          {
+            title,
+            url,
+          },
+        );
+      }
     } else {
       browser.bookmarks.create({
         title: title ? title : url,
@@ -34,7 +44,8 @@ export class BookmarksController {
     }
   }
 
-  delete(id) {
+  async delete(id) {
+    // TODO@me move links from category to uncategorised before delete
     browser.bookmarks.remove(id);
   }
 
@@ -57,12 +68,13 @@ export class BookmarksController {
       let bookmarks = await browser.bookmarks.getChildren(bookmarkRootId);
       let rootFolder = await browser.bookmarks.get(bookmarkRootId);
 
+      rootFolder[0].title = 'uncategorised';
+
       return await [...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder')];
     } catch (err) {
       console.error(err);
     }
   }
-
 
   hostConnected() {
     if (this.host.tagName == 'CATEGORY-LIST') {
@@ -80,6 +92,14 @@ export class BookmarksController {
         }
       });
 
+      browser.bookmarks.onChanged.addListener(async (id) => {
+        const [bm] = await browser.bookmarks.get(id);
+
+        if (bm.parentId == this.host?.category.id) {
+          this.list = this.getBookmarks(bm.parentId);
+        }
+      });
+
       browser.bookmarks.onMoved.addListener((_, bookmark) => {
         if (bookmark.oldParentId == this.host.category.id) {
           this.list = this.getBookmarks(bookmark.oldParentId);
@@ -87,6 +107,20 @@ export class BookmarksController {
         if (bookmark.parentId == this.host.category.id) {
           this.list = this.getBookmarks(bookmark.parentId);
         }
+      });
+    }
+
+    if (this.host.tagName == 'QUICK-DIAL') {
+      browser.bookmarks.onCreated.addListener(async () => {
+        this.host.categories = await this.getFolders();
+      });
+
+      browser.bookmarks.onRemoved.addListener(async () => {
+        this.host.categories = await this.getFolders();
+      });
+
+      browser.bookmarks.onMoved.addListener(async () => {
+        this.host.categories = await this.getFolders();
       });
     }
   }
