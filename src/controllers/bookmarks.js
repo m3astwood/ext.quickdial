@@ -48,7 +48,15 @@ export class BookmarksController {
     try {
       await browser.bookmarks.remove(id);
     } catch(err) {
-      console.error(err)
+      const event = new CustomEvent('error', {
+        detail: {
+          error: err
+        },
+        composed: true,
+        bubbles: true
+      });
+
+      this.host.dispatchEvent(event);
     }
   }
 
@@ -68,11 +76,11 @@ export class BookmarksController {
     try {
       let bookmarks = await browser.bookmarks.getChildren(this.getRootId());
 
-      const categories = bookmarks.filter(bm => bm.type == 'folder')
+      const categories = bookmarks.filter(bm => bm.type == 'folder');
 
       return [ ...categories ];
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   }
 
