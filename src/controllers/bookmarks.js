@@ -45,15 +45,11 @@ export class BookmarksController {
   }
 
   async delete(id) {
-    const links = await browser.bookmarks.getChildren(id);
-
-    if (links.length > 0) {
-      const parentId = this.getRootId();
-      // move links to rootId
-      await Promise.all(links.map(async l => browser.bookmarks.move(l.id, { parentId })));
+    try {
+      await browser.bookmarks.remove(id);
+    } catch(err) {
+      console.error(err)
     }
-
-    await browser.bookmarks.remove(id);
   }
 
   async getBookmarks() {
@@ -70,14 +66,11 @@ export class BookmarksController {
 
   async getFolders() {
     try {
-      const bookmarkRootId = this.getRootId();
+      let bookmarks = await browser.bookmarks.getChildren(this.getRootId());
 
-      let bookmarks = await browser.bookmarks.getChildren(bookmarkRootId);
-      let rootFolder = await browser.bookmarks.get(bookmarkRootId);
+      const categories = bookmarks.filter(bm => bm.type == 'folder')
 
-      rootFolder[0].title = 'uncategorised';
-
-      return [ ...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder') ];
+      return [ ...categories ];
     } catch (err) {
       console.error(err);
     }

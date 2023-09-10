@@ -22,10 +22,6 @@ export class CategoryList extends LitElement {
     this.loading = false;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
   async firstUpdated() {
     await this.bookmarksController.getBookmarks(this.category.id);
   }
