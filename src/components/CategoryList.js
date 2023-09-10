@@ -60,17 +60,9 @@ export class CategoryList extends LitElement {
     return html`
       <section class="category" draggable="true">
         <header>
-<<<<<<< HEAD
-          <h3>${this.category.order} : ${this.category.name}</h3>
-          <a href="#" @click="${this._addLink}">add link</a> | 
-          <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.name}>edit</button>
-          ${
-      this.category.id != 0
-=======
           <h3>${this.category.title}</h3>
           <a href="#" @click="${this._addBookmark}">add bookmark</a>  
           ${this.category.title != 'uncategorised'
->>>>>>> fa530fa (through rewrite to save items to bookmarks over db)
         ? html`
           |
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.title}>edit</button>
@@ -86,13 +78,8 @@ export class CategoryList extends LitElement {
             .bookmark=${bookmark}
           ></quick-item>`
         )
-<<<<<<< HEAD
-        : `no links in ${this.category.name}`
-    }
-=======
         : 'no bookmarks'
       }
->>>>>>> fa530fa (through rewrite to save items to bookmarks over db)
       </section>
     `;
   }

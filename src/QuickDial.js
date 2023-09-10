@@ -77,6 +77,7 @@ export class QuickDial extends LitElement {
 
   async deleteCategory(evt) {
     try {
+      const { id } = evt.detail;
       this.bookmarksController.delete(id);
     } catch (err) {
       console.error(err);
