@@ -1,6 +1,6 @@
 {
   "name": "ext.quickhome",
-  "version": "0.1.2",
+  "version": "2.0.0",
   "description": "simple custom homepage quickdial extension",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
