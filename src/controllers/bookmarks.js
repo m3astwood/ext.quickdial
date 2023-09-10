@@ -17,7 +17,7 @@ export class BookmarksController {
 
   async save({ id, url, title, parentId }) {
     if (id) {
-      const [bm] = await browser.bookmarks.get(id);
+      const [ bm ] = await browser.bookmarks.get(id);
       if (bm.parentId != parentId) {
         browser.bookmarks.move(
           id,
@@ -45,8 +45,15 @@ export class BookmarksController {
   }
 
   async delete(id) {
-    // TODO@me move links from category to uncategorised before delete
-    browser.bookmarks.remove(id);
+    const links = await browser.bookmarks.getChildren(id);
+
+    if (links.length > 0) {
+      const parentId = this.getRootId();
+      // move links to rootId
+      await Promise.all(links.map(async l => browser.bookmarks.move(l.id, { parentId })));
+    }
+
+    await browser.bookmarks.remove(id);
   }
 
   async getBookmarks() {
@@ -70,7 +77,7 @@ export class BookmarksController {
 
       rootFolder[0].title = 'uncategorised';
 
-      return await [...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder')];
+      return [ ...rootFolder, ...bookmarks.filter(bm => bm.type == 'folder') ];
     } catch (err) {
       console.error(err);
     }
@@ -84,16 +91,14 @@ export class BookmarksController {
         }
       });
 
-      browser.bookmarks.onRemoved.addListener((id, bookmark) => {
+      browser.bookmarks.onRemoved.addListener((_, bookmark) => {
         if (bookmark.parentId == this.host?.category.id) {
-          const idx = this.list?.findIndex((bm) => bm.id == id);
-          this.list.splice(idx, 1);
-          this.host.requestUpdate();
+          this.list = this.getBookmarks(bookmark.parentId);
         }
       });
 
       browser.bookmarks.onChanged.addListener(async (id) => {
-        const [bm] = await browser.bookmarks.get(id);
+        const [ bm ] = await browser.bookmarks.get(id);
 
         if (bm.parentId == this.host?.category.id) {
           this.list = this.getBookmarks(bm.parentId);
