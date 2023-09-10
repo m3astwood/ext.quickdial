@@ -4,7 +4,7 @@ import { validate } from 'validate.js';
 import { BookmarksController } from '../controllers/bookmarks';
 
 export class AddBookmark extends LitElement {
-  bookmarksController = new BookmarksController(this)
+  bookmarksController = new BookmarksController(this);
 
   static get properties() {
     return {
@@ -24,8 +24,8 @@ export class AddBookmark extends LitElement {
     this.error = null;
   }
 
-  async firstUpdated() {
-    this.categories = await this.bookmarksController.getFolders()
+  async getCategories() {
+    this.categories = await this.bookmarksController.getFolders();
   }
 
   saveBookmark(evt) {
@@ -64,6 +64,8 @@ export class AddBookmark extends LitElement {
       title: bookmark?.title ?? '',
       url: bookmark?.url ?? ''
     };
+
+    this.getCategories();
 
     this.renderRoot.querySelector('dialog').showModal();
   }
