@@ -9,8 +9,12 @@ browser.runtime.onStartup.addListener(quickdialVerify);
 async function quickdialVerify() {
   const dirId = localStorage.getItem('quickdialRoot');
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (dirId && dirId !== 'undefined') {
+=======
+  if (dirId && dirId != 'undefined') {
+>>>>>>> layout
     console.log('found id :',dirId);
 
     try {
