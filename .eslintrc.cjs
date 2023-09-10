@@ -3,7 +3,8 @@ module.exports = {
   'env': {
     'browser': true,
     'node': true,
-    'webextensions': true
+    'webextensions': true,
+    'es2019': true
   },
   'extends': [
     'eslint:recommended',
