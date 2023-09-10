@@ -100,15 +100,14 @@ export class QuickDial extends LitElement {
   render() {
     return html`
       <header>
-        <a href="#" id="newCat" @click="${this.openAddCategory}">add category</a>
+        <a href="#" id="newCat" @click=${this.openAddCategory}>add category</a>
       </header>
 
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
 
       <main>
-      ${this.categories.length > 0
-        ? this.categories.map((category) =>
-          html`<category-list 
+        ${this.categories?.map((category) =>
+        html`<category-list 
           .category=${category}
           data-id=${category.name}
           @editCategory=${this.editCategory} 
@@ -118,72 +117,70 @@ export class QuickDial extends LitElement {
           @deleteBookmark=${this.deleteBookmark}
         >
         </category-list>`
-        )
-        : ''
-      }
-    </main>
+        )}
+      </main>
 
-    <add-bookmark 
-      @save="${this.saveBookmark}" 
-      open=${this.bookmarksController.bookmarkModal}
-    ></add-bookmark>
-    
-    <add-category 
-      @save=${this.saveCategory}
-      open=${this.addCategory}
-    ></add-category >
+      <add-bookmark 
+        @save="${this.saveBookmark}" 
+        open=${this.bookmarksController.bookmarkModal}
+      ></add-bookmark>
 
-     ${this.errorController?.errors.length > 0 ?
+      <add-category 
+        @save=${this.saveCategory}
+        open=${this.addCategory}
+      ></add-category >
+
+      ${this.errorController?.errors.length > 0 ?
       html`<div class='error-container'>
         ${this.errorController?.errors.map(err => html`<error-popup message=${err.message}></error-popup>`)}
       </div>`
-       : ''
-     }
+      : ''
+      }
 
-  `;
+      `;
   }
 
   static get styles() {
     return css`
-    :host {
-      display: block;
-      margin-block-start: 5em;
-      padding: 1em;
-      width: min(100em, 100%);
-     }
+:host {
+  display: block;
+  margin-block-start: 5em;
+  padding: 1em;
+  width: min(100em, 100%);
+}
 
-    .error-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100vw;
-      display: flex;
-      flex-direction: column-reverse;
-    }
+.error-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column-reverse;
+}
 
-    header {
-      display: flex;
-      align-items: end;
-      margin-block-end: 1em;
-      gap: 0.25em;
-    }
+header {
+  display: flex;
+  align-items: end;
+  margin-block-end: 1em;
+  gap: 0.25em;
+}
 
-    header > a:first-of-type {
-      margin-inline-start: auto;
-    }
+header > a:first-of-type {
+  margin-inline-start: auto;
+}
 
-    h2, h3 {
-      margin-block-end: 0;
-      line-height: 1;
-      margin-inline-end: auto;
-    }
+h2, h3 {
+  margin-block-end: 0;
+  line-height: 1;
+  margin-inline-end: auto;
+}
 
-    main {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(30em, 100%), 1fr));
-      gap: 1em;
-    }
-    `;
+main {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(30em, 100%), 1fr));
+  gap: 1em;
+}
+`;
   }
 }
 
