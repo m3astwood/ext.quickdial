@@ -18,7 +18,6 @@ export class AddBookmark extends LitElement {
 
   constructor() {
     super();
-    // this.open = false;
     this.categories = [];
     this.bookmark = { title: '', url: '', parentId: '' };
     this.error = null;
