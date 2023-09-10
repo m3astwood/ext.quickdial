@@ -5,11 +5,13 @@ import './components/AddBookmark.js';
 import './components/AddCategory.js';
 
 import { BookmarksController } from './controllers/bookmarks.js';
+import { ErrorController } from './controllers/errors.js';
 
 export class QuickDial extends LitElement {
 
   // controllers
   bookmarksController = new BookmarksController(this);
+  errorController = new ErrorController(this);
 
   static get properties() {
     return {
@@ -129,6 +131,14 @@ export class QuickDial extends LitElement {
       @save=${this.saveCategory}
       open=${this.addCategory}
     ></add-category >
+
+     ${this.errorController?.errors.length > 0 ?
+      html`<div class='error-container'>
+        ${this.errorController?.errors.map(err => html`<error-popup message=${err.message}></error-popup>`)}
+      </div>`
+       : ''
+     }
+
   `;
   }
 
@@ -140,6 +150,15 @@ export class QuickDial extends LitElement {
       padding: 1em;
       width: min(100em, 100%);
      }
+
+    .error-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      display: flex;
+      flex-direction: column-reverse;
+    }
 
     header {
       display: flex;

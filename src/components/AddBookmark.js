@@ -2,6 +2,7 @@ import { css, html, LitElement } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { validate } from 'validate.js';
 import { BookmarksController } from '../controllers/bookmarks';
+import '../components/ErrorPopup';
 
 export class AddBookmark extends LitElement {
   bookmarksController = new BookmarksController(this);
@@ -20,7 +21,6 @@ export class AddBookmark extends LitElement {
     super();
     this.categories = [];
     this.bookmark = { title: '', url: '', parentId: '' };
-    this.error = null;
   }
 
   async getCategories() {
@@ -30,11 +30,11 @@ export class AddBookmark extends LitElement {
   saveBookmark(evt) {
     evt.preventDefault();
 
-    this.error = validate({ url: this.bookmark.url }, {
+    const validationError = validate({ url: this.bookmark.url }, {
       url: { presence: { allowEmpty: false }, url: { allowLocal: true } },
     });
 
-    if (!this.error) {
+    if (!validationError) {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
@@ -46,7 +46,14 @@ export class AddBookmark extends LitElement {
       this.dispatchEvent(event);
       this.close();
     } else {
-      console.error(this.error);
+      const error = new Error(validationError.url.join(', '));
+      const event = new CustomEvent('error', {
+        bubbles: true,
+        composed: true,
+        detail: { error }
+      });
+
+      this.dispatchEvent(event);
     }
   }
 
@@ -71,12 +78,6 @@ export class AddBookmark extends LitElement {
 
   render() {
     return html`
-      ${this.error
-        ? html`<div class="error">
-        Error : ${this.error.url.map((e) => html`${e} `)}
-      </div>`
-        : ''
-      }
       <dialog>
         <form @submit="${this.saveBookmark}">
           <label for="title">title</label>
@@ -93,22 +94,6 @@ export class AddBookmark extends LitElement {
           <button type="submit">save</button>
         </form>
       </dialog>
-    `;
-  }
-
-  static get styles() {
-    return css`
-      .error {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: calc(100vw - 4em);
-        background-color: darkred;
-        padding: 1em;
-        margin: 1em;
-        color: white;
-      }
     `;
   }
 }
