@@ -106,8 +106,8 @@ export class QuickDial extends LitElement {
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
 
       <main>
-      ${this.categories.length > 0
-        ? this.categories.map((category) =>
+      ${this.categories.length > 0 ?
+         this.categories.map((category) =>
           html`<category-list 
           .category=${category}
           data-id=${category.name}
