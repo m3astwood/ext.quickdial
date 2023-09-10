@@ -1,5 +1,4 @@
 browser.runtime.onInstalled.addListener(() => {
-  console.log('onInstalled event');
     window.setTimeout(() => {
       quickdialVerify();
     }, 500);
@@ -9,6 +8,7 @@ browser.runtime.onStartup.addListener(quickdialVerify);
 
 async function quickdialVerify() {
   const dirId = localStorage.getItem('quickdialRoot');
+
   if (dirId && dirId !== 'undefined') {
     console.log('found id :',dirId);
 
