@@ -74,7 +74,8 @@ export class BookmarksController {
 
   async getFolders() {
     try {
-      let bookmarks = await browser.bookmarks.getChildren(this.getRootId());
+      const parentId = this.getRootId();
+      let bookmarks = await browser.bookmarks.getChildren(parentId);
 
       const categories = bookmarks.filter(bm => bm.type == 'folder');
 
