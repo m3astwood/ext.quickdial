@@ -1,11 +1,7 @@
-browser.runtime.onInstalled.addListener((details) => {
-  if (details.reason == 'install') {
+browser.runtime.onInstalled.addListener(() => {
     window.setTimeout(() => {
-      quickdialInit();
+      quickdialVerify();
     }, 500);
-  } else {
-    quickdialVerify();
-  }
 });
 
 browser.runtime.onStartup.addListener(quickdialVerify);
