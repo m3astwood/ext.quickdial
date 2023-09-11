@@ -25,10 +25,6 @@ export class QuickDial extends LitElement {
     this.categories = [];
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
   async firstUpdated() {
     this.categories = await this.bookmarksController.getFolders();
   }
