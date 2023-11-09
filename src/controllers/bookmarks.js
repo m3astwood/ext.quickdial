@@ -37,7 +37,7 @@ export class BookmarksController {
       }
     } else {
       browser.bookmarks.create({
-        title: title ? title : url,
+        title: title ?? url,
         parentId: parentId ?? this.getRootId(),
         url
       });

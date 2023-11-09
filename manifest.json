@@ -14,14 +14,16 @@
     "type": "module"
   },
   "permissions": ["storage", "activeTab", "bookmarks"],
-    "browser_action": {
-    "default_icon":"icons/icon-48.png",
+  "browser_action": {
+    "default_icon": {
+      "48": "icons/icon-48.png"
+    },
     "default_title": "quickhome",
-    "default_popup": "menu.html"
+    "default_popup": "menu.html",
+    "default_area": "navbar"
   },
   "chrome_url_overrides": {
     "newtab": "index.html"
   }
-
 }
 
