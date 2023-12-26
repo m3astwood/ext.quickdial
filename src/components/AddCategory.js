@@ -8,24 +8,22 @@ export class AddCategory extends LitElement {
   static get properties() {
     return {
       category: { type: Object, reflect: true },
-      error: { type: Object, state: true },
     };
   }
 
   constructor() {
     super();
-    this.error = null;
     this.category = {};
   }
 
   saveCategory(evt) {
     evt.preventDefault();
 
-    this.error = validate({ title: this.category.title }, {
+    const validationError = validate({ title: this.category.title }, {
       title: { presence: { allowEmpty: false } },
     });
 
-    if (!this.error) {
+    if (!validationError) {
       const event = new CustomEvent('save', {
         bubbles: true,
         composed: true,
@@ -38,6 +36,15 @@ export class AddCategory extends LitElement {
 
       this.dispatchEvent(event);
       this.close();
+    } else {
+      const error = new Error(validationError.title.join(', '));
+      const event = new CustomEvent('error', {
+        bubbles: true,
+        composed: true,
+        detail: { error }
+      });
+
+      this.dispatchEvent(event);
     }
   }
 
@@ -58,12 +65,6 @@ export class AddCategory extends LitElement {
 
   render() {
     return html`
-      ${this.error
-        ? html`<div class="error">
-        Error : ${this.error.title.map((e) => html`${e} `)}
-      </div>`
-        : ''
-      }
       <dialog>
         <form action="submit" @submit="${this.saveCategory}">
           <label for="title">title</label>
@@ -78,17 +79,6 @@ export class AddCategory extends LitElement {
 
   static get styles() {
     return [ unsafeCSS(baseCss), css`
-      .error {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: calc(100vw - 4em);
-        background-color: darkred;
-        padding: 1em;
-        margin: 1em;
-        color: white;
-      }
     ` ];
   }
 }

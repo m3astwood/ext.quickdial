@@ -101,7 +101,6 @@ export class AddBookmark extends LitElement {
 
   static get styles() {
     return [unsafeCSS(baseStyles), css`
-
     `];
   }
 }

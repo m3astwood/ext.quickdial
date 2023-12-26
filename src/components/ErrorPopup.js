@@ -28,10 +28,11 @@ class ErrorPopup extends LitElement {
   static get styles() {
     return css`
       .error {
-        background-color: darkred;
+        background-color: var(--red-400, darkred);
         padding: 1em;
         margin: 0.25em 0.5em 0.5em;
-        color: white;
+        color: var(--netural-100, white);
+        border-radius: 0.25em;
       }
     `;
   }
