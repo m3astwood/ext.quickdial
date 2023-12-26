@@ -1,6 +1,8 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { validate } from 'validate.js';
+
+import baseCss from '../../public/index.css?inline';
 
 export class AddCategory extends LitElement {
   static get properties() {
@@ -75,7 +77,7 @@ export class AddCategory extends LitElement {
   }
 
   static get styles() {
-    return css`
+    return [ unsafeCSS(baseCss), css`
       .error {
         position: fixed;
         bottom: 0;
@@ -87,7 +89,7 @@ export class AddCategory extends LitElement {
         margin: 1em;
         color: white;
       }
-    `;
+    ` ];
   }
 }
 

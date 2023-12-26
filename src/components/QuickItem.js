@@ -1,4 +1,6 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
+
+import baseStyles from '../../public/index.css?inline';
 
 export class QuickItem extends LitElement {
   static get properties() {
@@ -50,15 +52,15 @@ export class QuickItem extends LitElement {
         </a>
 
         <div class="controls">
-          <button class="outline" @click="${this._edit}">edit</button>
-          <button class="outline" @click="${this._delete}">delete</button>
+          <button @click="${this._edit}">edit</button>
+          <button class="delete" @click="${this._delete}">delete</button>
         </div>
       </div>
     `;
   }
 
   static get styles() {
-    return css`
+    return [ unsafeCSS(baseStyles), css`
       .item {
         display: flex;
         padding-block: 0.5em;
@@ -69,7 +71,7 @@ export class QuickItem extends LitElement {
       div > :first-child {
         margin-inline-end: auto;
       }
-    `;
+    ` ];
   }
 }
 

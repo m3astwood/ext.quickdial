@@ -1,8 +1,11 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
+import Sortable from 'sortablejs';
 
 import './components/CategoryList.js';
 import './components/AddBookmark.js';
 import './components/AddCategory.js';
+
+import baseStyles from '../public/index.css';
 
 import { BookmarksController } from './controllers/bookmarks.js';
 import { ErrorController } from './controllers/errors.js';
@@ -27,6 +30,18 @@ export class QuickDial extends LitElement {
 
   async firstUpdated() {
     this.categories = await this.bookmarksController.getFolders();
+
+    const mainEl = this.shadowRoot.querySelector('main');
+    Sortable.create(mainEl, {
+      animation: 150,
+      onEnd: async ({ item, newIndex }) => {
+        let cat = item.attributes.getNamedItem('category');
+        if (cat) {
+          cat = JSON.parse(cat.value);
+          await this.bookmarksController.move(cat.id, newIndex);
+        }
+      }
+    });
   }
 
   editBookmark(evt) {
@@ -102,26 +117,27 @@ export class QuickDial extends LitElement {
       ${this.loading ? html`<div class="loading">Loading...</div>` : ''}
 
       <main>
-        ${this.categories?.map((category) =>
-        html`<category-list 
-          .category=${category}
-          data-id=${category.name}
-          @editCategory=${this.editCategory} 
-          @deleteCategory=${this.deleteCategory} 
-          @addBookmark=${this.openAddBookmark}
-          @editBookmark=${this.editBookmark}
-          @deleteBookmark=${this.deleteBookmark}
-        >
-        </category-list>`
+          ${this.categories?.map((category) =>
+            html`<category-list
+              .category=${category}
+              data-id=${category.name}
+              @editCategory=${this.editCategory}
+              @deleteCategory=${this.deleteCategory}
+              @addBookmark=${this.openAddBookmark}
+              @editBookmark=${this.editBookmark}
+              @deleteBookmark=${this.deleteBookmark}
+            >
+            </category-list>`
         )}
       </main>
 
-      <add-bookmark 
-        @save="${this.saveBookmark}" 
+      <!-- modals -->
+      <add-bookmark
+        @save="${this.saveBookmark}"
         open=${this.bookmarksController.bookmarkModal}
       ></add-bookmark>
 
-      <add-category 
+      <add-category
         @save=${this.saveCategory}
         open=${this.addCategory}
       ></add-category >
@@ -132,17 +148,13 @@ export class QuickDial extends LitElement {
       </div>`
       : ''
       }
-
-      `;
+    `;
   }
 
   static get styles() {
-    return css`
+    return [ unsafeCSS(baseStyles), css`
 :host {
   display: block;
-  margin-block-start: 5em;
-  padding: 1em;
-  width: min(100em, 100%);
 }
 
 .error-container {
@@ -156,9 +168,9 @@ export class QuickDial extends LitElement {
 
 header {
   display: flex;
-  align-items: end;
+  align-items: center;
   margin-block-end: 1em;
-  gap: 0.25em;
+  gap: 0.5em;
 }
 
 header > a:first-of-type {
@@ -166,17 +178,15 @@ header > a:first-of-type {
 }
 
 h2, h3 {
-  margin-block-end: 0;
-  line-height: 1;
-  margin-inline-end: auto;
+  margin-block: 0;
 }
 
 main {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(30em, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(30em, 100%), 1fr));
   gap: 1em;
 }
-`;
+` ];
   }
 }
 
