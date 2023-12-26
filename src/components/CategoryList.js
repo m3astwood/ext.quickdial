@@ -1,7 +1,9 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
 
 import './QuickItem.js';
 import { BookmarksController } from '../controllers/bookmarks.js';
+
+import baseStyles from '../../public/index.css?inline';
 
 export class CategoryList extends LitElement {
 
@@ -61,12 +63,11 @@ export class CategoryList extends LitElement {
       <section class="category" draggable="true">
         <header>
           <h3>${this.category.title}</h3>
-          <a href="#" @click="${this._addBookmark}">add bookmark</a>  
+          <a href="#" @click="${this._addBookmark}">add bookmark</a>
           ${this.category.title != 'uncategorised'
         ? html`
-          |
           <button @click=${this._editCategory} data-id=${this.category.id} data-name=${this.category.title}>edit</button>
-          <button @click=${this._deleteCategory} data-id=${this.category.id}>delete</button>
+          <button class="delete" @click=${this._deleteCategory} data-id=${this.category.id}>delete</button>
           `
         : ''
       }
@@ -74,7 +75,7 @@ export class CategoryList extends LitElement {
 
         ${this.bookmarksController.list?.length > 0
         ? this.bookmarksController.list.map((bookmark) =>
-          html`<quick-item 
+          html`<quick-item
             .bookmark=${bookmark}
           ></quick-item>`
         )
@@ -85,13 +86,17 @@ export class CategoryList extends LitElement {
   }
 
   static get styles() {
-    return css`
+    return [ unsafeCSS(baseStyles), css`
+    :host {
+      padding-block: 0.75em;
+    }
+
     header {
       display: flex;
-      align-items: end;
+      align-items: center;
       margin-block-end: 1em;
-      gap: 0.25em;
-      border-block-end: thin solid currentColor;
+      gap: 0.5em;
+      border-block-end: thin solid var(--bg-secondary, currentColor);
       padding-block-end: 1em;
     }
 
@@ -100,12 +105,11 @@ export class CategoryList extends LitElement {
     }
 
     h2, h3 {
-      margin-block-end: 0;
-      line-height: 1;
+      margin-block: 0;
       margin-inline-end: auto;
     }
 
-`;
+` ];
   }
 }
 

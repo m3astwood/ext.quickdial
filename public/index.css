@@ -9,28 +9,111 @@
 
   --fs-400: 1rem;
   --ff-base: Inter, system-ui, sans-serif;
+
+  --neutral-100: #ffffff;
+  --neutral-200: #eeeeee;
+  --neutral-300: #c7c7c7;
+  --neutral-400: #b3b1ad;
+  --neutral-500: #4e545f;
+  --neutral-800: #242831;
+  --neutral-900: #080c11;
+
+  --turquoise-400: #90e1c6;
+  --turquoise-500: #9dd2bb;
+
+  --magenta-300: #ff6188;
+  --magenta-400: #fc4085;
+
+  --blue-400: #5ccfe6;
+  --blue-600: #6994bf;
+
+  --orange-100: #ffee99;
+  --orange-200: #ffcc66;
+  --orange-300: #ffb454;
+  --orange-400: #ff8f40;
+
+  --red-400: #ff3333;
+  --red-500: #ff4057;
+
+  --bg-primary: var(--neutral-100);
+  --bg-secondary: var(--neutral-500);
+  --bg-highlight: var(--turquoise-500);
+
+  --fg-primary: var(--neutral-900);
+  --fg-highlight: var(--magenta-400);
+  --bg-input: var(--neutral-200);
 }
 
 body {
-  display: flex;
-  justify-content: center;
-  height: 100vh;
   font-family: var(--ff-base, sans-serif);
+  color: var(--fg-primary);
+  background-color: var(--bg-primary);
   line-height: 1.5;
   font-weight: 400;
   margin: 0;
-  padding: 0;
+  padding: 3em;
+}
+
+a, a:visited, a:active {
+  color: var(--fg-highlight);
+}
+
+input, button {
+  outline: none;
+  padding: 0.5em;
+  border-radius: 0.25em;
+  border: thin solid var(--bg-secondary);
+}
+
+select {
+  padding: 0.5em;
+  border-radius: 0.25em;
+}
+
+button, select {
+  cursor: pointer;
+  background-color: var(--bg-input);
+  border: none;
+  transition: all ease-in-out 0.125s;
+}
+
+button:hover {
+  background-color: var(--bg-highlight);
+}
+
+button.delete:hover {
+  background-color: var(--red-500);
+}
+
+dialog {
+  border: thin solid var(--bg-secondary);
+  background-color: var(--bg-primary);
+  padding: 2em;
+}
+
+form {
+  display: grid;
+  gap: 0.75em;
+  grid-auto-flow: column;
+  align-items: center;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --fg-primary: var(--neutral-900);
+    --bg-primary: var(--neutral-100);
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color: #ECECEC;
+    --fg-primary: var(--neutral-100);
+    --bg-primary: var(--neutral-900);
+    --fg-highlight: var(--turquoise-400);
+    --bg-input: var(--neutral-800);
+  }
+
+  button:hover {
+    color: var(--bg-primary);
   }
 }

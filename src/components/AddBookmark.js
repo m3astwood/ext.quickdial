@@ -1,8 +1,10 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
 import { live } from 'lit/directives/live.js';
 import { validate } from 'validate.js';
 import { BookmarksController } from '../controllers/bookmarks';
 import '../components/ErrorPopup';
+
+import baseStyles from '../../public/index.css?inline';
 
 export class AddBookmark extends LitElement {
   bookmarksController = new BookmarksController(this);
@@ -95,6 +97,12 @@ export class AddBookmark extends LitElement {
         </form>
       </dialog>
     `;
+  }
+
+  static get styles() {
+    return [unsafeCSS(baseStyles), css`
+
+    `];
   }
 }
 

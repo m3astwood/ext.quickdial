@@ -60,6 +60,10 @@ export class BookmarksController {
     }
   }
 
+  async move(id, index) {
+    await browser.bookmarks.move(id, { index })
+  }
+
   async getBookmarks() {
     try {
       let bookmarks = await browser.bookmarks.getChildren(this.host.category.id);
@@ -107,12 +111,21 @@ export class BookmarksController {
         }
       });
 
-      browser.bookmarks.onMoved.addListener((_, bookmark) => {
-        if (bookmark.oldParentId == this.host.category.id) {
-          this.list = this.getBookmarks(bookmark.oldParentId);
-        }
-        if (bookmark.parentId == this.host.category.id) {
-          this.list = this.getBookmarks(bookmark.parentId);
+      browser.bookmarks.onMoved.addListener(async (_, bookmark) => {
+        const parent = await browser.bookmarks.get(bookmark.parentId)
+
+        if (parent.title == 'quickdial-extension') {
+          // re-render category order
+          this.host.categories = await this.getFolders()
+        } else {
+          // re-render bookmarks in category
+          if (bookmark.oldParentId == this.host.category.id) {
+            this.list = this.getBookmarks(bookmark.oldParentId);
+          }
+
+          if (bookmark.parentId == this.host.category.id) {
+            this.list = this.getBookmarks(bookmark.parentId);
+          }
         }
       });
     }

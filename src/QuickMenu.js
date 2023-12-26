@@ -1,5 +1,7 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, unsafeCSS } from 'lit';
 import { BookmarksController } from './controllers/bookmarks.js';
+
+import baseStyles from '../public/index.css?inline';
 
 class QuickMenu extends LitElement {
   bookmarksController = new BookmarksController(this);
@@ -51,8 +53,12 @@ class QuickMenu extends LitElement {
     ` : html`<span>No categories in quickdial</span>`;
   }
 
+  createRenderRoot() {
+    return this;
+  }
+
   static get styles() {
-    return css`
+    return [ unsafeCSS(baseStyles), css`
       :host {
         font-family: sans-serif;
         display: grid;
@@ -76,7 +82,7 @@ class QuickMenu extends LitElement {
       button:hover {
         text-decoration: underline;
       }
-    `;
+    ` ];
   }
 }
 
