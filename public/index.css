@@ -7,11 +7,10 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --fs-400: 1rem;
   --ff-base: Inter, system-ui, sans-serif;
 
   --neutral-100: #ffffff;
-  --neutral-200: #eeeeee;
+  --neutral-200: #dadbc0;
   --neutral-300: #c7c7c7;
   --neutral-400: #b3b1ad;
   --neutral-500: #4e545f;
@@ -35,7 +34,7 @@
   --red-400: #ff3333;
   --red-500: #ff4057;
 
-  --bg-primary: var(--neutral-100);
+  --bg-primary: var(--neutral-200);
   --bg-secondary: var(--neutral-500);
   --bg-highlight: var(--turquoise-500);
 
@@ -50,6 +49,7 @@ body {
   background-color: var(--bg-primary);
   line-height: 1.5;
   font-weight: 400;
+  font-size: clamp(0.8rem, 0.2vw + 0.9rem , 2rem);
   margin: 0;
   padding: 3em;
 }
@@ -107,7 +107,7 @@ form {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --fg-primary: var(--neutral-100);
+    --fg-primary: var(--neutral-200);
     --bg-primary: var(--neutral-900);
     --fg-highlight: var(--turquoise-400);
     --bg-input: var(--neutral-800);

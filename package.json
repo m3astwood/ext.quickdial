@@ -1,11 +1,12 @@
 {
   "name": "ext.homepage",
   "private": true,
-  "version": "2.0.5",
+  "version": "2.0.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cd dist && web-ext build",
+    "build": "npm run build:source_zip && vite build && cd dist && web-ext build",
+    "build:source_zip": "rm -r dist && zip -r source_files.zip public src index.html manifest.json menu.html package.json README.md vite.config.js",
     "preview": "vite preview"
   },
   "dependencies": {
