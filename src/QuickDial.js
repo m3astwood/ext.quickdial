@@ -4,6 +4,7 @@ import Sortable from 'sortablejs';
 import './components/CategoryList.js';
 import './components/AddBookmark.js';
 import './components/AddCategory.js';
+import './components/ThemeSwitcher.js';
 
 import baseStyles from '../public/index.css';
 
@@ -108,9 +109,30 @@ export class QuickDial extends LitElement {
     modal.open();
   }
 
+  themeSwitch() {
+    let theme;
+
+    if (this.preferDark.matches) {
+      document.body.classList.toggle('light');
+      theme = document.body.classList.contains('light')
+        ? 'light'
+        : 'dark';
+    } else {
+      document.body.classList.toggle('dark');
+      theme = document.body.classList.contains('dark')
+        ? 'dark'
+        : 'light';
+    }
+
+    console.log('changed to the', theme, 'theme');
+
+    localStorage.setItem('theme', theme);
+  }
+
   render() {
     return html`
       <header>
+        <theme-switcher></theme-switcher>
         <a href="#" id="newCat" @click=${this.openAddCategory}>add category</a>
       </header>
 

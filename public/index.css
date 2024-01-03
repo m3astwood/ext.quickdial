@@ -43,6 +43,20 @@
   --bg-input: var(--neutral-200);
 }
 
+body.dark {
+  --fg-primary: var(--neutral-200);
+  --bg-primary: var(--neutral-900);
+  --fg-highlight: var(--turquoise-400);
+  --bg-input: var(--neutral-800);
+}
+
+body.light {
+  --fg-primary: var(--neutral-900);
+  --fg-highlight: var(--magenta-400);
+  --bg-primary: var(--neutral-100);
+  --bg-input: var(--neutral-200);
+}
+
 body {
   font-family: var(--ff-base, sans-serif);
   color: var(--fg-primary);
@@ -63,6 +77,7 @@ input, button {
   padding: 0.5em;
   border-radius: 0.25em;
   border: thin solid var(--bg-secondary);
+  color: var(--fg-primary);
 }
 
 select {
