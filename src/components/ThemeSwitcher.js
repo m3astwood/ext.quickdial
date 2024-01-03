@@ -5,10 +5,10 @@ class ThemeSwitcher extends LitElement {
     preferDark: { type: Boolean, state: true },
     currentTheme: { type: String, state: true },
     setTheme: { type: String, state: true }
-  }
+  };
 
   constructor() {
-    super()
+    super();
     this.preferDark = window.matchMedia('(prefers-color-scheme: dark)');
     this.setTheme = localStorage.getItem('theme') || this.preferDark.matches ? 'dark' : 'light';
   }
@@ -44,10 +44,10 @@ class ThemeSwitcher extends LitElement {
   render() {
     return html`
       <input type="checkbox" id="themeSwitcher" name="theme" @click="${this.themeSwitch}" ?checked="${this.setTheme == 'dark'}" /><label for="theme">dark theme</label>
-    `
+    `;
   }
 
-  static styles = css``
+  static styles = css``;
 }
 
-customElements.define('theme-switcher', ThemeSwitcher)
+customElements.define('theme-switcher', ThemeSwitcher);
