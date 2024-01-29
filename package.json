@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run build:source_zip && vite build && cd dist && web-ext build",
-    "build:source_zip": "rm -r dist && zip -r source_files.zip public src index.html manifest.json menu.html package.json README.md vite.config.js",
-    "preview": "vite preview"
+    "build:source_zip": "rm -r dist && zip -r source_files.zip public src index.html manifest.json menu.html package.json README.md vite.config.js"
   },
   "dependencies": {
     "lit": "^2.7.2",

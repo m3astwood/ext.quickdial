@@ -23,9 +23,11 @@ async function quickdialVerify() {
     if (bookmark || await quickdialSearch()) {
       return;
     }
+  } else {
+    if (!await quickdialSearch()) {
+      quickdialInit();
+    }
   }
-
-  quickdialInit();
 }
 
 async function quickdialSearch() {
