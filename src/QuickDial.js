@@ -177,6 +177,7 @@ export class QuickDial extends LitElement {
     return [ unsafeCSS(baseStyles), css`
 :host {
   display: block;
+  padding: 3em;
 }
 
 .error-container {
