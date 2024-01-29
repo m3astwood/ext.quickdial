@@ -61,7 +61,7 @@ export class BookmarksController {
   }
 
   async move(id, index) {
-    await browser.bookmarks.move(id, { index })
+    await browser.bookmarks.move(id, { index });
   }
 
   async getBookmarks() {
@@ -112,11 +112,11 @@ export class BookmarksController {
       });
 
       browser.bookmarks.onMoved.addListener(async (_, bookmark) => {
-        const parent = await browser.bookmarks.get(bookmark.parentId)
+        const parent = await browser.bookmarks.get(bookmark.parentId);
 
         if (parent.title == 'quickdial-extension') {
           // re-render category order
-          this.host.categories = await this.getFolders()
+          this.host.categories = await this.getFolders();
         } else {
           // re-render bookmarks in category
           if (bookmark.oldParentId == this.host.category.id) {
