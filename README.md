@@ -1,6 +1,6 @@
 # Quickdial Homepage
 
-A little personal project to make a simple quickdial homepage firefox extension.
+A developing personal project to make a simple quickdial homepage firefox extension.
 
 ## Building
 
